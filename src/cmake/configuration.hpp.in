@@ -1,0 +1,10 @@
+#pragma once
+
+#define METHAN_VERSION_MAJOR            @METHAN_VERSION_MAJOR@
+#define METHAN_VERSION_MINOR            @METHAN_VERSION_MINOR@
+#define METHAN_VERSION_PATCH            @METHAN_VERSION_PATCH@
+#define METHAN_VERSIO                   "@METHAN_VERSION@"
+
+#cmakedefine METHAN_DEBUG
+#cmakedefine METHAN_BUILD_SHARED
+#cmakedefine METHAN_EXPOSE_PRIVATE
