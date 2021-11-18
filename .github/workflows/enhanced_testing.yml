@@ -10,7 +10,25 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        build_shared: [OFF, ON]
+        include:
+        - os: macos-latest
+          build_shared: OFF
+          build_type: Release
+        - os: ubuntu-latest
+          build_shared: OFF
+          build_type: Release
+        - os: windows-latest
+          build_shared: OFF
+          build_type: Release
+        - os: macos-latest
+          build_shared: ON
+          build_type: Release
+        - os: ubuntu-latest
+          build_shared: ON
+          build_type: Release
+        - os: windows-latest
+          build_shared: ON
+          build_type: Release
 
     steps:
       - name: Checkout
