@@ -4,29 +4,13 @@ on: [ push ]
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            build_type: "Release"
-            build_shared: ON
-          - os: ubuntu-latest
-            build_type: "Release"
-            build_shared: ON
-          - os: macos-latest
-            build_type: "Release"
-            build_shared: ON
-          - os: windows-latest
-            build_type: "Release"
-            build_shared: OFF
-          - os: ubuntu-latest
-            build_type: "Release"
-            build_shared: OFF
-          - os: macos-latest
-            build_type: "Release"
-            build_shared: OFF
+    runs-on: ${{ matrix.os }}
 
-    runs-on: ${ {matrix.os} }
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        build_shared: [OFF, ON]
 
     steps:
       - name: Checkout
@@ -35,11 +19,11 @@ jobs:
           submodules: recursive
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${ {matrix.build_shared} } -DMETHAN_DEBUG=ON
+        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${ { matrix.build_shared } } -DMETHAN_DEBUG=ON
       
       - name: 🔨 Build 🔨
-        run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
+        run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
 
       - name: 🧪 Test 🧪
-        working-directory: ${{github.workspace}}/build
-        run: ctest -C ${{matrix.build_type}}
+        working-directory: ${{ github.workspace }}/build
+        run: ctest -C ${{ matrix.build_type }}
