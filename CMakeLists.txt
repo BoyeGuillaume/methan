@@ -25,5 +25,14 @@ set(METHAN_INSTALL_BINARY_DIR "${METHAN_INSTALL_PREFIX}/bin")
 set(METHAN_INSTALL_LIBRARY_DIR "${METHAN_INSTALL_PREFIX}/lib")
 set(METHAN_INSTALL_CMAKE_DIR "${METHAN_INSTALL_PREFIX}/cmake")
 
+set(METHAN_THIRD_PARTY_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/third_party")
+
 # Adding source subdirectory
 add_subdirectory(src)
+if(${METHAN_BUILD_TEST})
+    message(STATUS "Importing Catch.......................................")
+    add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/Catch2")
+    
+    enable_testing()
+    add_subdirectory(test)
+endif()

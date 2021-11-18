@@ -2,6 +2,10 @@
 cmake_minimum_required(VERSION 3.12)
 include(CMakePackageConfigHelpers)
 
+# Configuring internal variable used throughout the project
+set(METHAN_INTERNAL_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
+set(METHAN_INTERNAL_BINARY_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
+
 # Discovering all source files that are part of the library
 file(GLOB_RECURSE METHAN_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/methan/**.cpp")
 message(STATUS "Discovering source files..............................[ OK ]")
@@ -27,13 +31,22 @@ endif()
 
 # Configuring the build
 message(STATUS "Configuration of the build............................")
-target_include_directories(Methan PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/methan/")
+target_include_directories(Methan PRIVATE "${METHAN_INTERNAL_INCLUDE_DIRECTORY}")
 target_compile_definitions(Methan PRIVATE "METHAN_EXPORT")
 
 # Configuring the library
 message(STATUS "Configuration of the library..........................")
 set_target_properties(Methan PROPERTIES
     LINKER_LANGUAGE CXX
+    ARCHIVE_OUTPUT_DIRECTORY "${METHAN_INTERNAL_BINARY_DIRECTORY}"
+    LIBRARY_OUTPUT_DIRECTORY "${METHAN_INTERNAL_BINARY_DIRECTORY}"
+    RUNTIME_OUTPUT_DIRECTORY "${METHAN_INTERNAL_BINARY_DIRECTORY}"
+    ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${METHAN_INTERNAL_BINARY_DIRECTORY}"
+    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${METHAN_INTERNAL_BINARY_DIRECTORY}"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${METHAN_INTERNAL_BINARY_DIRECTORY}"
+    ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${METHAN_INTERNAL_BINARY_DIRECTORY}"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE "${METHAN_INTERNAL_BINARY_DIRECTORY}"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${METHAN_INTERNAL_BINARY_DIRECTORY}"
     SOVERSION ${METHAN_VERSION_MAJOR}.${METHAN_VERSION_MINOR})
 
 # Setup the install targegt

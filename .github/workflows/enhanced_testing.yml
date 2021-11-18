@@ -1,0 +1,65 @@
+name: "Advanced Testing"
+
+on: [ push ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+          name: "Windows Latest MSVC",
+          os: windows-latest,
+          build_type: "Release",
+          build_shared: OFF
+        }
+        - {
+          name: "Ubuntu Latest GCC",
+          os: ubuntu-latest,
+          build_type: "Release",
+          build_shared: OFF
+        }
+        - {
+          name: "macOS Latest Clang", 
+          os: macos-latest,
+          build_type: "Release",
+          build_shared: OFF
+        }
+        - {
+          name: "Windows Latest MSVC",
+          os: windows-latest,
+          build_type: "Release",
+          build_shared: ON
+        }
+        - {
+          name: "Ubuntu Latest GCC",
+          os: ubuntu-latest,
+          build_type: "Release",
+          build_shared: ON
+        }
+        - {
+          name: "macOS Latest Clang", 
+          os: macos-latest,
+          build_type: "Release",
+          build_shared: ON
+        }
+
+    name: ${ { matrix.config.name } }
+    runs-on: ${ { matrix.config.os } }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Configure CMake
+        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${ { matrix.config.build_shared } } -DMETHAN_DEBUG=ON
+      
+      - name: 🔨 Build 🔨
+        run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.config.build_type }}
+
+      - name: 🧪 Test 🧪
+        working-directory: ${{ github.workspace }}/build
+        run: ctest -C ${{ matrix.config.build_type }}
