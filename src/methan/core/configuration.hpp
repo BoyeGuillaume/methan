@@ -6,5 +6,5 @@
 #define METHAN_VERSION                  "1.0.0"
 
 #define METHAN_DEBUG
-/* #undef METHAN_BUILD_SHARED */
+#define METHAN_BUILD_SHARED
 /* #undef METHAN_EXPOSE_PRIVATE */

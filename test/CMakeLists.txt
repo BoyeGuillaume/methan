@@ -20,21 +20,11 @@ foreach(TEST_FILE ${METHAN_TEST_FILES})
     target_include_directories(${EXECUTABLE_NAME} PUBLIC ${METHAN_INTERNAL_INCLUDE_DIRECTORY})
 
     if(${METHAN_BUILD_SHARED})
-        if(WIN32)
-            set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "Methan.dll")
-        elseif(UNIX AND NOT APPLE)
-            set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "libMethan.so")
-        elseif(APPLE)
-            set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "libMethan.dylib")
-        else()
-            message(FATAL_ERROR "Unknow platform")
-        endif()
-
         add_custom_command(TARGET ${EXECUTABLE_NAME}
-            POST_BUILD
+            PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
-                    "\"${METHAN_INTERNAL_BINARY_DIRECTORY}/${METHAN_PLATFORM_SPECIFIC_DYNAMIC_NAME}\""
-                    "\"${CMAKE_CURRENT_BINARY_DIR}/${METHAN_PLATFORM_SPECIFIC_DYNAMIC_NAME}\"")
+                    "\"${METHAN_INTERNAL_BINARY_DIRECTORY}/${METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY}\""
+                    "\"${CMAKE_CURRENT_BINARY_DIR}/${METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY}\"")
     endif()
 
     set_target_properties(${EXECUTABLE_NAME} PROPERTIES

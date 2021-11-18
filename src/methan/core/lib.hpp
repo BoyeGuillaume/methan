@@ -2,7 +2,7 @@
 
 #include <methan/core/configuration.hpp>
 
-#ifdef LETHAN_BUILD_SHARED
+#ifdef METHAN_BUILD_SHARED
 #ifdef METHAN_EXPORT
 #define DLL __declspec(dllexport)
 #else

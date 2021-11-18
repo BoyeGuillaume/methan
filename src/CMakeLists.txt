@@ -2,10 +2,6 @@
 cmake_minimum_required(VERSION 3.12)
 include(CMakePackageConfigHelpers)
 
-# Configuring internal variable used throughout the project
-set(METHAN_INTERNAL_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
-set(METHAN_INTERNAL_BINARY_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
-
 # Discovering all source files that are part of the library
 file(GLOB_RECURSE METHAN_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/methan/**.cpp")
 message(STATUS "Discovering source files..............................[ OK ]")
@@ -23,11 +19,29 @@ if(${METHAN_BUILD_SHARED})
     add_library(Methan STATIC SHARED ${METHAN_SOURCE_FILES})
     message("   > Shared")
     set(METHAN_BUILD_MODE SHARED)
+
+    # Find the name of the dynamic library
+    if(WIN32)
+        set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "Methan.dll")
+    elseif(UNIX AND NOT APPLE)
+        set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "libMethan.so")
+    elseif(APPLE)
+        set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "libMethan.dylib")
+    else()
+        message(FATAL_ERROR "Unknow platform")
+    endif()
+
 else()
     add_library(Methan STATIC ${METHAN_SOURCE_FILES})
     message("   > Static")
     set(METHAN_BUILD_MODE STATIC)
+    set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "")
 endif()
+
+# Configuring internal variable used throughout the project
+set(METHAN_INTERNAL_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
+set(METHAN_INTERNAL_BINARY_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
+set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY ${METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY} PARENT_SCOPE)
 
 # Configuring the build
 message(STATUS "Configuration of the build............................")
