@@ -9,41 +9,41 @@ jobs:
       matrix:
         config:
         - {
-          name: "Windows Latest MSVC",
-          os: windows-latest,
-          build_type: "Release",
-          build_shared: OFF
-        }
+            name: "Windows Latest MSVC",
+            os: windows-latest,
+            build_type: "Release",
+            build_shared: OFF
+          }
         - {
-          name: "Ubuntu Latest GCC",
-          os: ubuntu-latest,
-          build_type: "Release",
-          build_shared: OFF
-        }
+            name: "Ubuntu Latest GCC",
+            os: ubuntu-latest,
+            build_type: "Release",
+            build_shared: OFF
+          }
         - {
-          name: "macOS Latest Clang", 
-          os: macos-latest,
-          build_type: "Release",
-          build_shared: OFF
-        }
+            name: "macOS Latest Clang", 
+            os: macos-latest,
+            build_type: "Release",
+            build_shared: OFF
+          }
         - {
-          name: "Windows Latest MSVC",
-          os: windows-latest,
-          build_type: "Release",
-          build_shared: ON
-        }
+            name: "Windows Latest MSVC",
+            os: windows-latest,
+            build_type: "Release",
+            build_shared: ON
+          }
         - {
-          name: "Ubuntu Latest GCC",
-          os: ubuntu-latest,
-          build_type: "Release",
-          build_shared: ON
-        }
+            name: "Ubuntu Latest GCC",
+            os: ubuntu-latest,
+            build_type: "Release",
+            build_shared: ON
+          }
         - {
-          name: "macOS Latest Clang", 
-          os: macos-latest,
-          build_type: "Release",
-          build_shared: ON
-        }
+            name: "macOS Latest Clang", 
+            os: macos-latest,
+            build_type: "Release",
+            build_shared: ON
+          }
 
     name: ${ { matrix.config.name } }
     runs-on: ${ { matrix.config.os } }
