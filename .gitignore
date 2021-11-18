@@ -38,3 +38,4 @@
 **/.vs/
 **/__pycache__/
 **/.idea/
+src/methan/core/configuration.hpp

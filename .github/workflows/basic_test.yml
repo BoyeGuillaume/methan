@@ -1,8 +1,8 @@
-name: "Enhanced Testing"
+name: "Basic Testing"
 
-on: 
-  pull_request:
-    branches:
+on:
+  push:
+    branches-ignore:
       - master
 
 jobs:
@@ -12,9 +12,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        build_shared: ["OFF", "ON"]
-        build_type: [Release, Debug]
+        os: [ubuntu-latest]
+        build_shared: ["OFF"]
+        build_type: [Release]
 
     steps:
       - name: 🔥 Checkout 🔥
