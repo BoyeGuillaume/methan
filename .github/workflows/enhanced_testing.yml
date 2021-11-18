@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        build_shared: ["ON"]
+        build_shared: ["OFF"]
         build_type: [Release]
 
     steps:
