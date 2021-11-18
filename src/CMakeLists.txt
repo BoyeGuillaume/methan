@@ -20,7 +20,7 @@ configure_file(
 # Create the library
 message(STATUS "Creating the library target...........................")
 if(${METHAN_BUILD_SHARED})
-    add_library(Methan SHARED ${METHAN_SOURCE_FILES})
+    add_library(Methan STATIC SHARED ${METHAN_SOURCE_FILES})
     message("   > Shared")
     set(METHAN_BUILD_MODE SHARED)
 else()
