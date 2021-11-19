@@ -4,7 +4,7 @@
 #ifndef METHAN_DEBUG
 #define METHAN_DEBUG
 #endif
-#include <methan/utility/crc32.hpp>
+#include <methan/utility/string_identifier.hpp>
 
 TEST_CASE("StringIdentifier correctly distinguish non-matching elements", "[hash]") {
     REQUIRE(METHAN_IDENTIFIER("HCE79ciGRNv_VCUmX4Eg9pF9spA") != METHAN_IDENTIFIER("Vxgbr-xxOHTr77RBEdihPhIgyyc"));
