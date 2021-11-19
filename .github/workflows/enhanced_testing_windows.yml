@@ -26,7 +26,7 @@ jobs:
           submodules: recursive
 
       - name: ⚡ Configure CMake ⚡
-        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=Debug DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${{ matrix.build_shared }} -DMETHAN_DEBUG=${{ matrix.build_type }}
+        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=Debug -DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${{ matrix.build_shared }} -DMETHAN_DEBUG=${{ matrix.build_type }}
       
       - name: 🔨 Build 🔨
         run: cmake --build ${{ github.workspace }}/build --config Debug
