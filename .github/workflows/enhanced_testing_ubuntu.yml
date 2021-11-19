@@ -1,4 +1,4 @@
-name: "Enhanced Testing"
+name: "Ubuntu Unit Tests"
 
 on: 
   pull_request:

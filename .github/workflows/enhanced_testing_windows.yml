@@ -1,4 +1,4 @@
-name: "Enhanced Testing"
+name: "Windows Unit Tests"
 
 on: 
   pull_request:
