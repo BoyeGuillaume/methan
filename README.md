@@ -1,6 +1,13 @@
 # Methan
 Methan is a C++ library aimed at creating computational graph and optimising such graph throughout parallelisation power.
 
+| Operating System | Status |
+|---|---|
+| MacOS | [![MacOS Unit Tests](https://github.com/BoyeGuillaume/methan/actions/workflows/enhanced_testing_macos.yml/badge.svg)](https://github.com/BoyeGuillaume/methan/actions/workflows/enhanced_testing_macos.yml) |
+| Ubuntu | [![Ubuntu Unit Tests](https://github.com/BoyeGuillaume/methan/actions/workflows/enhanced_testing_ubuntu.yml/badge.svg)](https://github.com/BoyeGuillaume/methan/actions/workflows/enhanced_testing_ubuntu.yml) |
+| Windows | [![Windows Unit Tests](https://github.com/BoyeGuillaume/methan/actions/workflows/enhanced_testing_windows.yml/badge.svg)](https://github.com/BoyeGuillaume/methan/actions/workflows/enhanced_testing_windows.yml) |
+
+
 ## Table Of Content
 - [Methan](#methan)
   - [Table Of Content](#table-of-content)
