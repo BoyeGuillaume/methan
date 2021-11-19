@@ -17,7 +17,7 @@ jobs:
       matrix:
         os: [windows-latest]
         build_shared: ["OFF", "ON"]
-        build_type: [Release, Debug]
+        build_type: ["OFF", "ON"]
 
     steps:
       - name: 🔥 Checkout 🔥
@@ -25,17 +25,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: ⚡ Configure CMake (DEBUG) ⚡
-        if: ${{ matrix.build_type }} == 'Debug'
-        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${{ matrix.build_shared }} -DMETHAN_DEBUG=ON
+      - name: ⚡ Configure CMake ⚡
+        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=Debug DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${{ matrix.build_shared }} -DMETHAN_DEBUG=${{ matrix.build_type }}
       
-      - name: ⚡ Configure CMake (RELEASE) ⚡
-        if: ${{ matrix.build_type }} == 'Release'
-        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${{ matrix.build_shared }} -DMETHAN_DEBUG=OFF
-
       - name: 🔨 Build 🔨
-        run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
+        run: cmake --build ${{ github.workspace }}/build --config Debug
 
       - name: 🧪 Test 🧪
         working-directory: ${{ github.workspace }}/build
-        run: ctest -C ${{ matrix.build_type }}
+        run: ctest -C Debug
