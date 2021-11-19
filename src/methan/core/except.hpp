@@ -39,11 +39,11 @@
  * @brief Tools to execute codes only in debug or release mode
  */
 #ifdef METHAN_DEBUG
-#define METHAN_DEBUG_ONLY(...)                                       METHAN_EXPAND(__VA_ARGS__)
+#define METHAN_DEBUG_ONLY(...)                                       __VA_ARGS__
 #define METHAN_RELEASE_ONLY(...)
 #define METHAN_DEBUG_OR_RELEASE(debug, release)                      debug
 #else
-#define METHAN_RELEASE_ONLY(...)                                     METHAN_EXPAND(__VA_ARGS__)
+#define METHAN_RELEASE_ONLY(...)                                     __VA_ARGS__
 #define METHAN_DEBUG_ONLY(...)
 #define METHAN_DEBUG_OR_RELEASE(debug, release)                      release
 #endif
