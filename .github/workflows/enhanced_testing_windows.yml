@@ -26,13 +26,13 @@ jobs:
           submodules: recursive
 
       - name: ⚡ Configure CMake (DEBUG) ⚡
-        if: ${{ matrix.build_type == Debug }}
+        if: ${{ matrix.build_type == 'Debug' }}
         run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${{ matrix.build_shared }} -DMETHAN_DEBUG=ON
       
       - name: ⚡ Configure CMake (RELEASE) ⚡
-        if: ${{ matrix.build_type == Release }}
+        if: ${{ matrix.build_type == 'Release' }}
         run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DMETHAN_BUILD_TEST=ON -DMETHAN_BUILD_SHARED=${{ matrix.build_shared }} -DMETHAN_DEBUG=OFF
-        
+
       - name: 🔨 Build 🔨
         run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
 
