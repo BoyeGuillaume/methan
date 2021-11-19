@@ -23,6 +23,7 @@ namespace Methan {
         NullPointer,
         AlreadyInitialized,
         IndexOutOfBounds,
+        BadCastException,
         Unknown
     };
 

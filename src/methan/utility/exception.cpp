@@ -29,6 +29,8 @@ METHAN_API std::string Methan::to_string(ExceptionType type)
         return "AlreadyInitialized";
     case ExceptionType::IndexOutOfBounds:
         return "IndexOutOfBounds";
+    case ExceptionType::BadCastException:
+        return "BadCastException";
     default:
         return "Unknown";
     }

@@ -14,6 +14,7 @@ option(METHAN_BUILD_TEST "Building the test(s)" OFF)
 option(METHAN_BUILD_SHARED "Building METHAN as a Shared library" OFF)
 option(METHAN_EXPOSE_PRIVATE "Install private header along side standard headers" OFF)
 option(METHAN_DEBUG "Sets METHAN in a debug environment (enhanced testing)" ON)
+option(METHAN_FORCE_ASSERTION "Force METHAN to expand assertion (even if METHAN_DEBUG ain't defined)" OFF)
 
 # Setting configuration variable(s)
 set(CMAKE_CXX_STANDARD 17)

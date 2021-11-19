@@ -1,0 +1,189 @@
+[0m2021.11.19 13:07:47 INFO  Started: Metals version 0.10.7 in workspace 'D:\guill\Documents\05 - Programmation\CPP\methan' for client Visual Studio Code 1.61.2.[0m
+[0m2021.11.19 13:07:47 INFO  time: initialize in 0.47s[0m
+[0m2021.11.19 13:07:48 WARN  Build server is not auto-connectable.[0m
+[0m2021.11.19 13:07:48 WARN  no build tool detected in workspace 'D:\guill\Documents\05 - Programmation\CPP\methan'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. [0m
+[0m2021.11.19 13:07:48 WARN  no build target for: D:\guill\Documents\04 - Etude\EPFL\2021-2022\BA3\FunProg\lab07-Bloxorz\src\main\scala\streams\StringParserTerrain.scala[0m
+[0m2021.11.19 13:07:51 INFO  no build target: using presentation compiler with only scala-library: 2.12.15[0m
+nov. 19, 2021 1:07:53 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: file%3A%2F%2F%2FD%3A%2Fguill%2FDocuments%2F04%2520-%2520Etude%2FEPFL%2F2021-2022%2FBA3%2FFunProg%2Flab07-Bloxorz%2Fsrc%2Fmain%2Fscala%2Fstreams%2FStringParserTerrain.scala:27: error: ; expected but : found
+trait StringParserTerrain extends GameDef:
+                                         ^
+file%3A%2F%2F%2FD%3A%2Fguill%2FDocuments%2F04%2520-%2520Etude%2FEPFL%2F2021-2022%2FBA3%2FFunProg%2Flab07-Bloxorz%2Fsrc%2Fmain%2Fscala%2Fstreams%2FStringParserTerrain.scala:27: error: ; expected but : found
+trait StringParserTerrain extends GameDef:
+                                         ^
+	at scala.meta.internal.parsers.Reporter.syntaxError(Reporter.scala:16)
+	at scala.meta.internal.parsers.Reporter.syntaxError$(Reporter.scala:16)
+	at scala.meta.internal.parsers.Reporter$$anon$1.syntaxError(Reporter.scala:22)
+	at scala.meta.internal.parsers.Reporter.syntaxError(Reporter.scala:17)
+	at scala.meta.internal.parsers.Reporter.syntaxError$(Reporter.scala:17)
+	at scala.meta.internal.parsers.Reporter$$anon$1.syntaxError(Reporter.scala:22)
+	at scala.meta.internal.parsers.ScalametaParser.syntaxErrorExpected(ScalametaParser.scala:941)
+	at scala.meta.internal.parsers.ScalametaParser.accept(ScalametaParser.scala:947)
+	at scala.meta.internal.parsers.ScalametaParser.acceptStatSep(ScalametaParser.scala:957)
+	at scala.meta.internal.parsers.ScalametaParser.acceptStatSepOpt(ScalametaParser.scala:961)
+	at scala.meta.internal.parsers.ScalametaParser.statSeq(ScalametaParser.scala:5060)
+	at scala.meta.internal.parsers.ScalametaParser.topStatSeq(ScalametaParser.scala:5066)
+	at scala.meta.internal.parsers.ScalametaParser.bracelessPackageStats$1(ScalametaParser.scala:5289)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$batchSource$12(ScalametaParser.scala:5295)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$batchSource$1(ScalametaParser.scala:5295)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.autoPos(ScalametaParser.scala:922)
+	at scala.meta.internal.parsers.ScalametaParser.batchSource(ScalametaParser.scala:5256)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$source$1(ScalametaParser.scala:5239)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.autoPos(ScalametaParser.scala:922)
+	at scala.meta.internal.parsers.ScalametaParser.source(ScalametaParser.scala:5238)
+	at scala.meta.internal.parsers.ScalametaParser.entrypointSource(ScalametaParser.scala:5244)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$parseSource$2(ScalametaParser.scala:143)
+	at scala.meta.internal.parsers.ScalametaParser.parseRule(ScalametaParser.scala:53)
+	at scala.meta.internal.parsers.ScalametaParser.parseSource(ScalametaParser.scala:143)
+	at scala.meta.parsers.Parse$.$anonfun$parseSource$1(Parse.scala:29)
+	at scala.meta.internal.parsers.ScalametaParser$$anon$264.apply(ScalametaParser.scala:5308)
+	at scala.meta.parsers.Api$XtensionParseDialectInput.parse(Api.scala:25)
+	at scala.meta.internal.semanticdb.scalac.ParseOps$XtensionCompilationUnitSource.toSource(ParseOps.scala:17)
+	at scala.meta.internal.semanticdb.scalac.TextDocumentOps$XtensionCompilationUnitDocument.toTextDocument(TextDocumentOps.scala:201)
+	at scala.meta.internal.pc.SemanticdbTextDocumentProvider.textDocument(SemanticdbTextDocumentProvider.scala:51)
+
+nov. 19, 2021 1:07:53 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: file%3A%2F%2F%2FD%3A%2Fguill%2FDocuments%2F04%2520-%2520Etude%2FEPFL%2F2021-2022%2FBA3%2FFunProg%2Flab07-Bloxorz%2Fsrc%2Fmain%2Fscala%2Fstreams%2FStringParserTerrain.scala:27: error: ; expected but : found
+trait StringParserTerrain extends GameDef:
+                                         ^
+file%3A%2F%2F%2FD%3A%2Fguill%2FDocuments%2F04%2520-%2520Etude%2FEPFL%2F2021-2022%2FBA3%2FFunProg%2Flab07-Bloxorz%2Fsrc%2Fmain%2Fscala%2Fstreams%2FStringParserTerrain.scala:27: error: ; expected but : found
+trait StringParserTerrain extends GameDef:
+                                         ^
+	at scala.meta.internal.parsers.Reporter.syntaxError(Reporter.scala:16)
+	at scala.meta.internal.parsers.Reporter.syntaxError$(Reporter.scala:16)
+	at scala.meta.internal.parsers.Reporter$$anon$1.syntaxError(Reporter.scala:22)
+	at scala.meta.internal.parsers.Reporter.syntaxError(Reporter.scala:17)
+	at scala.meta.internal.parsers.Reporter.syntaxError$(Reporter.scala:17)
+	at scala.meta.internal.parsers.Reporter$$anon$1.syntaxError(Reporter.scala:22)
+	at scala.meta.internal.parsers.ScalametaParser.syntaxErrorExpected(ScalametaParser.scala:941)
+	at scala.meta.internal.parsers.ScalametaParser.accept(ScalametaParser.scala:947)
+	at scala.meta.internal.parsers.ScalametaParser.acceptStatSep(ScalametaParser.scala:957)
+	at scala.meta.internal.parsers.ScalametaParser.acceptStatSepOpt(ScalametaParser.scala:961)
+	at scala.meta.internal.parsers.ScalametaParser.statSeq(ScalametaParser.scala:5060)
+	at scala.meta.internal.parsers.ScalametaParser.topStatSeq(ScalametaParser.scala:5066)
+	at scala.meta.internal.parsers.ScalametaParser.bracelessPackageStats$1(ScalametaParser.scala:5289)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$batchSource$12(ScalametaParser.scala:5295)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$batchSource$1(ScalametaParser.scala:5295)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.autoPos(ScalametaParser.scala:922)
+	at scala.meta.internal.parsers.ScalametaParser.batchSource(ScalametaParser.scala:5256)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$source$1(ScalametaParser.scala:5239)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.autoPos(ScalametaParser.scala:922)
+	at scala.meta.internal.parsers.ScalametaParser.source(ScalametaParser.scala:5238)
+	at scala.meta.internal.parsers.ScalametaParser.entrypointSource(ScalametaParser.scala:5244)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$parseSource$2(ScalametaParser.scala:143)
+	at scala.meta.internal.parsers.ScalametaParser.parseRule(ScalametaParser.scala:53)
+	at scala.meta.internal.parsers.ScalametaParser.parseSource(ScalametaParser.scala:143)
+	at scala.meta.parsers.Parse$.$anonfun$parseSource$1(Parse.scala:29)
+	at scala.meta.internal.parsers.ScalametaParser$$anon$264.apply(ScalametaParser.scala:5308)
+	at scala.meta.parsers.Api$XtensionParseDialectInput.parse(Api.scala:25)
+	at scala.meta.internal.semanticdb.scalac.ParseOps$XtensionCompilationUnitSource.toSource(ParseOps.scala:17)
+	at scala.meta.internal.semanticdb.scalac.TextDocumentOps$XtensionCompilationUnitDocument.toTextDocument(TextDocumentOps.scala:201)
+	at scala.meta.internal.pc.SemanticdbTextDocumentProvider.textDocument(SemanticdbTextDocumentProvider.scala:51)
+
+nov. 19, 2021 1:07:53 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: file%3A%2F%2F%2FD%3A%2Fguill%2FDocuments%2F04%2520-%2520Etude%2FEPFL%2F2021-2022%2FBA3%2FFunProg%2Flab07-Bloxorz%2Fsrc%2Fmain%2Fscala%2Fstreams%2FStringParserTerrain.scala:27: error: ; expected but : found
+trait StringParserTerrain extends GameDef:
+                                         ^
+file%3A%2F%2F%2FD%3A%2Fguill%2FDocuments%2F04%2520-%2520Etude%2FEPFL%2F2021-2022%2FBA3%2FFunProg%2Flab07-Bloxorz%2Fsrc%2Fmain%2Fscala%2Fstreams%2FStringParserTerrain.scala:27: error: ; expected but : found
+trait StringParserTerrain extends GameDef:
+                                         ^
+	at scala.meta.internal.parsers.Reporter.syntaxError(Reporter.scala:16)
+	at scala.meta.internal.parsers.Reporter.syntaxError$(Reporter.scala:16)
+	at scala.meta.internal.parsers.Reporter$$anon$1.syntaxError(Reporter.scala:22)
+	at scala.meta.internal.parsers.Reporter.syntaxError(Reporter.scala:17)
+	at scala.meta.internal.parsers.Reporter.syntaxError$(Reporter.scala:17)
+	at scala.meta.internal.parsers.Reporter$$anon$1.syntaxError(Reporter.scala:22)
+	at scala.meta.internal.parsers.ScalametaParser.syntaxErrorExpected(ScalametaParser.scala:941)
+	at scala.meta.internal.parsers.ScalametaParser.accept(ScalametaParser.scala:947)
+	at scala.meta.internal.parsers.ScalametaParser.acceptStatSep(ScalametaParser.scala:957)
+	at scala.meta.internal.parsers.ScalametaParser.acceptStatSepOpt(ScalametaParser.scala:961)
+	at scala.meta.internal.parsers.ScalametaParser.statSeq(ScalametaParser.scala:5060)
+	at scala.meta.internal.parsers.ScalametaParser.topStatSeq(ScalametaParser.scala:5066)
+	at scala.meta.internal.parsers.ScalametaParser.bracelessPackageStats$1(ScalametaParser.scala:5289)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$batchSource$12(ScalametaParser.scala:5295)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$batchSource$1(ScalametaParser.scala:5295)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.autoPos(ScalametaParser.scala:922)
+	at scala.meta.internal.parsers.ScalametaParser.batchSource(ScalametaParser.scala:5256)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$source$1(ScalametaParser.scala:5239)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.autoPos(ScalametaParser.scala:922)
+	at scala.meta.internal.parsers.ScalametaParser.source(ScalametaParser.scala:5238)
+	at scala.meta.internal.parsers.ScalametaParser.entrypointSource(ScalametaParser.scala:5244)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$parseSource$2(ScalametaParser.scala:143)
+	at scala.meta.internal.parsers.ScalametaParser.parseRule(ScalametaParser.scala:53)
+	at scala.meta.internal.parsers.ScalametaParser.parseSource(ScalametaParser.scala:143)
+	at scala.meta.parsers.Parse$.$anonfun$parseSource$1(Parse.scala:29)
+	at scala.meta.internal.parsers.ScalametaParser$$anon$264.apply(ScalametaParser.scala:5308)
+	at scala.meta.parsers.Api$XtensionParseDialectInput.parse(Api.scala:25)
+	at scala.meta.internal.semanticdb.scalac.ParseOps$XtensionCompilationUnitSource.toSource(ParseOps.scala:17)
+	at scala.meta.internal.semanticdb.scalac.TextDocumentOps$XtensionCompilationUnitDocument.toTextDocument(TextDocumentOps.scala:201)
+	at scala.meta.internal.pc.SemanticdbTextDocumentProvider.textDocument(SemanticdbTextDocumentProvider.scala:51)
+
+[0m2021.11.19 13:07:53 INFO  time: code lens generation in 4.01s[0m
+nov. 19, 2021 1:07:53 PM scala.meta.internal.pc.CompilerAccess handleError
+SEVERE: file%3A%2F%2F%2FD%3A%2Fguill%2FDocuments%2F04%2520-%2520Etude%2FEPFL%2F2021-2022%2FBA3%2FFunProg%2Flab07-Bloxorz%2Fsrc%2Fmain%2Fscala%2Fstreams%2FStringParserTerrain.scala:27: error: ; expected but : found
+trait StringParserTerrain extends GameDef:
+                                         ^
+file%3A%2F%2F%2FD%3A%2Fguill%2FDocuments%2F04%2520-%2520Etude%2FEPFL%2F2021-2022%2FBA3%2FFunProg%2Flab07-Bloxorz%2Fsrc%2Fmain%2Fscala%2Fstreams%2FStringParserTerrain.scala:27: error: ; expected but : found
+trait StringParserTerrain extends GameDef:
+                                         ^
+	at scala.meta.internal.parsers.Reporter.syntaxError(Reporter.scala:16)
+	at scala.meta.internal.parsers.Reporter.syntaxError$(Reporter.scala:16)
+	at scala.meta.internal.parsers.Reporter$$anon$1.syntaxError(Reporter.scala:22)
+	at scala.meta.internal.parsers.Reporter.syntaxError(Reporter.scala:17)
+	at scala.meta.internal.parsers.Reporter.syntaxError$(Reporter.scala:17)
+	at scala.meta.internal.parsers.Reporter$$anon$1.syntaxError(Reporter.scala:22)
+	at scala.meta.internal.parsers.ScalametaParser.syntaxErrorExpected(ScalametaParser.scala:941)
+	at scala.meta.internal.parsers.ScalametaParser.accept(ScalametaParser.scala:947)
+	at scala.meta.internal.parsers.ScalametaParser.acceptStatSep(ScalametaParser.scala:957)
+	at scala.meta.internal.parsers.ScalametaParser.acceptStatSepOpt(ScalametaParser.scala:961)
+	at scala.meta.internal.parsers.ScalametaParser.statSeq(ScalametaParser.scala:5060)
+	at scala.meta.internal.parsers.ScalametaParser.topStatSeq(ScalametaParser.scala:5066)
+	at scala.meta.internal.parsers.ScalametaParser.bracelessPackageStats$1(ScalametaParser.scala:5289)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$batchSource$12(ScalametaParser.scala:5295)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$batchSource$1(ScalametaParser.scala:5295)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.autoPos(ScalametaParser.scala:922)
+	at scala.meta.internal.parsers.ScalametaParser.batchSource(ScalametaParser.scala:5256)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$source$1(ScalametaParser.scala:5239)
+	at scala.meta.internal.parsers.ScalametaParser.atPos(ScalametaParser.scala:888)
+	at scala.meta.internal.parsers.ScalametaParser.autoPos(ScalametaParser.scala:922)
+	at scala.meta.internal.parsers.ScalametaParser.source(ScalametaParser.scala:5238)
+	at scala.meta.internal.parsers.ScalametaParser.entrypointSource(ScalametaParser.scala:5244)
+	at scala.meta.internal.parsers.ScalametaParser.$anonfun$parseSource$2(ScalametaParser.scala:143)
+	at scala.meta.internal.parsers.ScalametaParser.parseRule(ScalametaParser.scala:53)
+	at scala.meta.internal.parsers.ScalametaParser.parseSource(ScalametaParser.scala:143)
+	at scala.meta.parsers.Parse$.$anonfun$parseSource$1(Parse.scala:29)
+	at scala.meta.internal.parsers.ScalametaParser$$anon$264.apply(ScalametaParser.scala:5308)
+	at scala.meta.parsers.Api$XtensionParseDialectInput.parse(Api.scala:25)
+	at scala.meta.internal.semanticdb.scalac.ParseOps$XtensionCompilationUnitSource.toSource(ParseOps.scala:17)
+	at scala.meta.internal.semanticdb.scalac.TextDocumentOps$XtensionCompilationUnitDocument.toTextDocument(TextDocumentOps.scala:201)
+	at scala.meta.internal.pc.SemanticdbTextDocumentProvider.textDocument(SemanticdbTextDocumentProvider.scala:51)
+
+[0m2021.11.19 13:07:53 INFO  time: code lens generation in 4.08s[0m
+nov. 19, 2021 1:08:06 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 9
+nov. 19, 2021 1:09:36 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+nov. 19, 2021 1:09:36 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+nov. 19, 2021 1:09:36 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+nov. 19, 2021 1:09:47 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+nov. 19, 2021 1:09:48 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+nov. 19, 2021 1:09:48 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+nov. 19, 2021 1:14:44 PM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+[0m2021.11.19 13:17:49 INFO  shutting down Metals[0m

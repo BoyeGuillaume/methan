@@ -10,6 +10,8 @@
 #define METHAN_CONCATENATE(a, b)                                     __METHAN_CONCATENATE_DETAILS(a, b)
 #define METHAN_STRINGIZE(x)                                          __METHAN_STRINGIZE_DETAILS(x)
 #define METHAN_ECAPSULATE_LINE_DETAILS(line)                         __METHAN_ECAPSULATE_LINE_DETAILS(line)
+#define METHAN_PP_NARGS(...)                                         __METHAN_PP_NARG_DETAILS(__VA_ARGS__, __METHAN_PP_RSEQ_N_DETAILS())
+
 
 /**
  * @brief Create an opaque handle structure with the given name. We will define
@@ -39,9 +41,11 @@
 #ifdef METHAN_DEBUG
 #define METHAN_DEBUG_ONLY(...)                                       METHAN_EXPAND(__VA_ARGS__)
 #define METHAN_RELEASE_ONLY(...)
+#define METHAN_DEBUG_OR_RELEASE(debug, release)                      debug
 #else
 #define METHAN_RELEASE_ONLY(...)                                     METHAN_EXPAND(__VA_ARGS__)
 #define METHAN_DEBUG_ONLY(...)
+#define METHAN_DEBUG_OR_RELEASE(debug, release)                      release
 #endif
 
 /**

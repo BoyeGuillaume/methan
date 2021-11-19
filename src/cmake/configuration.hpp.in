@@ -8,3 +8,4 @@
 #cmakedefine METHAN_DEBUG
 #cmakedefine METHAN_BUILD_SHARED
 #cmakedefine METHAN_EXPOSE_PRIVATE
+#cmakedefine METHAN_FORCE_ASSERTION

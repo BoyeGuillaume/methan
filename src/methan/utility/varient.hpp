@@ -4,9 +4,10 @@
 #include <functional>
 
 #include <methan/core/except.hpp>
+#include <methan/utility/assertion.hpp>
 
 
-namespace Varient {
+namespace Methan {
 
     class Varient
     {
@@ -61,7 +62,7 @@ namespace Varient {
         m_typeId(typeid(T).hash_code()),
         m_flag(IsDataOwner),
         m_destructor([](void* _data) { delete reinterpret_cast<T*>(_data); }),
-        m_copy([](void** dest, const void* _data) { *dest = new T(*reinterpret_cast<T*>(_data)) })
+        m_copy([](void** dest, void* _data) { *dest = new T(*reinterpret_cast<T*>(_data)); })
         {}
 
         inline ~Varient()
@@ -105,7 +106,48 @@ namespace Varient {
         template<typename T>
         inline bool is() const noexcept
         {
-            return m_typeId == typeid(T).hash_code();
+            if (isEmpty()) return false;
+            if (m_typeId == typeid(T).hash_code()) return true;
+
+            if(std::is_pointer<T>::value && !(m_flag & IsConstant))
+            {
+                return m_typeId == typeid(std::remove_const_t<std::remove_pointer_t<T>>*).hash_code();
+            }
+
+            return false;
+        }
+
+        template<typename T, std::enable_if_t<std::is_pointer<T>::value && std::is_const<std::remove_pointer_t<T>>::value, bool> = true>
+        inline T get() const
+        {
+            METHAN_ASSERT(isNonEmpty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
+            METHAN_ASSERT(is<T>(), Methan::ExceptionType::BadCastException, "Cannot cast from type " METHAN_DEBUG_OR_RELEASE("`" + std::string(m_dataName) + "`", + std::to_string(m_typeId) + ) " to type " METHAN_DEBUG_OR_RELEASE("`" + std::string(typeid(T).name()) + "`", + std::to_string(typeid(T).hash_code())));
+            return reinterpret_cast<T>(m_data);
+        }
+
+        template<typename T, std::enable_if_t<std::is_pointer<T>::value && !std::is_const<std::remove_pointer_t<T>>::value, bool> = true>
+        inline T get() const
+        {
+            METHAN_ASSERT(isNonEmpty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
+            METHAN_ASSERT(is<T>(), Methan::ExceptionType::BadCastException, "Cannot cast from type " METHAN_DEBUG_OR_RELEASE("`" + std::string(m_dataName) + "`", + std::to_string(m_typeId) + ) " to type " METHAN_DEBUG_OR_RELEASE("`" + std::string(typeid(T).name()) + "`", + std::to_string(typeid(T).hash_code())));
+            METHAN_ASSERT(!(m_flag & IsConstant), Methan::ExceptionType::BadCastException, "Cannot cast a pointer-to-constant to a pointer-to-non-const");
+            return reinterpret_cast<T>(m_data);
+        }
+
+        template<typename T, std::enable_if_t<(!std::is_pointer<T>::value) && std::is_copy_constructible<T>::value, bool> = true>
+        inline const T& get() const
+        {
+            METHAN_ASSERT(isNonEmpty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
+            METHAN_ASSERT(is<T>(), Methan::ExceptionType::BadCastException, "Cannot cast from type " METHAN_DEBUG_OR_RELEASE("`" + std::string(m_dataName) + "`", + std::to_string(m_typeId) + ) " to type " METHAN_DEBUG_OR_RELEASE("`" + std::string(typeid(T).name()) + "`", + std::to_string(typeid(T).hash_code())));
+            return *reinterpret_cast<T*>(m_data);
+        }
+
+        template<typename T, std::enable_if_t<(!std::is_pointer<T>::value) && std::is_copy_constructible<T>::value, bool> = true>
+        inline T& get()
+        {
+            METHAN_ASSERT(isNonEmpty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
+            METHAN_ASSERT(is<T>(), Methan::ExceptionType::BadCastException, "Cannot cast from type " METHAN_DEBUG_OR_RELEASE("`" + std::string(m_dataName) + "`", + std::to_string(m_typeId) + ) " to type " METHAN_DEBUG_OR_RELEASE("`" + std::string(typeid(T).name()) + "`", + std::to_string(typeid(T).hash_code())));
+            return *reinterpret_cast<T*>(m_data);
         }
 
     private:
@@ -118,7 +160,7 @@ namespace Varient {
         void* m_data;
         uint8_t m_flag;
         std::function<void(void*)> m_destructor;
-        std::function<void(void**, const void*)> m_copy;
+        std::function<void(void**, void*)> m_copy;
         METHAN_DEBUG_ONLY(const char* m_dataName;)
     };
 
