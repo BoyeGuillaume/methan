@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Setting up the project
-project(Methan LANGUAGES CXX VERSION 1.0.0)
+project(Methan LANGUAGES CXX VERSION 0.1.0)
 
 # Include utility
 include(cmake/ExtractVersion.cmake)
