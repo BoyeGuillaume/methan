@@ -31,6 +31,8 @@ METHAN_API std::string Methan::to_string(ExceptionType type)
         return "IndexOutOfBounds";
     case ExceptionType::BadCastException:
         return "BadCastException";
+    case ExceptionType::HashCollision:
+        return "HashCollision";
     default:
         return "Unknown";
     }

@@ -24,6 +24,7 @@ namespace Methan {
         AlreadyInitialized,
         IndexOutOfBounds,
         BadCastException,
+        HashCollision,
         Unknown
     };
 
