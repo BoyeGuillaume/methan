@@ -4,8 +4,11 @@ cmake_minimum_required(VERSION 3.12)
 # Setting up the project
 project(Methan LANGUAGES CXX VERSION 1.0.0)
 
-# Extracting the version form the project version
+# Include utility
 include(cmake/ExtractVersion.cmake)
+include(cmake/GetDynamicLibName.cmake)
+
+# Extracting the version form the project version
 extract_version(${CMAKE_PROJECT_VERSION} "METHAN")
 message("-- Methan v${METHAN_VERSION}")
 
@@ -27,6 +30,25 @@ set(METHAN_INSTALL_LIBRARY_DIR "${METHAN_INSTALL_PREFIX}/lib")
 set(METHAN_INSTALL_CMAKE_DIR "${METHAN_INSTALL_PREFIX}/cmake")
 
 set(METHAN_THIRD_PARTY_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/third_party")
+
+# Setting the methan build directory accordingly
+set(METHAN_INTERNAL_BINARY_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${METHAN_INTERNAL_BINARY_DIRECTORY}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${METHAN_INTERNAL_BINARY_DIRECTORY}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${METHAN_INTERNAL_BINARY_DIRECTORY}")
+
+# Listing all the shared target name that must be copy in order to ensure the viability of all the 
+# library
+set(METHAN_INTERNAL_SHARED_LIST "")
+
+# Adding third_party utilities used throughout the Methan library
+set(SPDLOG_BUILD_SHARED ${METHAN_BUILD_SHARED} CACHE BOOL "enable shared spdlog" FORCE)
+if(${METHAN_BUILD_SHARED})
+    get_dynamic_lib_name(_METHAN_DYNAMIC_LIB_NAME "spdlog")
+    list(APPEND METHAN_INTERNAL_SHARED_LIST ${_METHAN_DYNAMIC_LIB_NAME})
+endif()
+add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/spdlog")
+set_target_properties(spdlog PROPERTIES DEBUG_POSTFIX "") # A little hacky solution has everyone loves
 
 # Adding source subdirectory
 add_subdirectory(src)

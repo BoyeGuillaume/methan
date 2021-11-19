@@ -19,13 +19,13 @@ foreach(TEST_FILE ${METHAN_TEST_FILES})
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE Catch2::Catch2WithMain Methan)
     target_include_directories(${EXECUTABLE_NAME} PUBLIC ${METHAN_INTERNAL_INCLUDE_DIRECTORY})
 
-    if(${METHAN_BUILD_SHARED})
+    foreach(_SHARED_LIBS ${METHAN_INTERNAL_SHARED_LIST})
         add_custom_command(TARGET ${EXECUTABLE_NAME}
             PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
-                    "\"${METHAN_INTERNAL_BINARY_DIRECTORY}/${METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY}\""
-                    "\"${CMAKE_CURRENT_BINARY_DIR}/${METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY}\"")
-    endif()
+                    "\"${METHAN_INTERNAL_BINARY_DIRECTORY}/${_SHARED_LIBS}\""
+                    "\"${CMAKE_CURRENT_BINARY_DIR}/${_SHARED_LIBS}\"")
+    endforeach()
 
     set_target_properties(${EXECUTABLE_NAME} PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"

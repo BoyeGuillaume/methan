@@ -20,28 +20,22 @@ if(${METHAN_BUILD_SHARED})
     message("   > Shared")
     set(METHAN_BUILD_MODE SHARED)
 
-    # Find the name of the dynamic library
-    if(WIN32)
-        set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "Methan.dll")
-    elseif(UNIX AND NOT APPLE)
-        set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "libMethan.so")
-    elseif(APPLE)
-        set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "libMethan.dylib")
-    else()
-        message(FATAL_ERROR "Unknow platform")
-    endif()
+    # Adding the Methan
+    get_dynamic_lib_name(_METHAN_DYNAMIC_LIB_NAME "Methan")
+    list(APPEND METHAN_INTERNAL_SHARED_LIST ${_METHAN_DYNAMIC_LIB_NAME})
+    set(METHAN_INTERNAL_SHARED_LIST ${METHAN_INTERNAL_SHARED_LIST} PARENT_SCOPE)
 
 else()
     add_library(Methan STATIC ${METHAN_SOURCE_FILES})
     message("   > Static")
     set(METHAN_BUILD_MODE STATIC)
-    set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY "")
 endif()
+
+# Configure dependencies of the Methan library
+target_link_libraries(Methan PRIVATE spdlog::spdlog)
 
 # Configuring internal variable used throughout the project
 set(METHAN_INTERNAL_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
-set(METHAN_INTERNAL_BINARY_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}" PARENT_SCOPE)
-set(METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY ${METHAN_PLATFORM_SPECIFIC_DYNAMIC_LIBRARY} PARENT_SCOPE)
 
 # Configuring the build
 message(STATUS "Configuration of the build............................")
@@ -52,18 +46,9 @@ target_compile_definitions(Methan PRIVATE "METHAN_EXPORT")
 message(STATUS "Configuration of the library..........................")
 set_target_properties(Methan PROPERTIES
     LINKER_LANGUAGE CXX
-    ARCHIVE_OUTPUT_DIRECTORY "${METHAN_INTERNAL_BINARY_DIRECTORY}"
-    LIBRARY_OUTPUT_DIRECTORY "${METHAN_INTERNAL_BINARY_DIRECTORY}"
-    RUNTIME_OUTPUT_DIRECTORY "${METHAN_INTERNAL_BINARY_DIRECTORY}"
-    ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${METHAN_INTERNAL_BINARY_DIRECTORY}"
-    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${METHAN_INTERNAL_BINARY_DIRECTORY}"
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${METHAN_INTERNAL_BINARY_DIRECTORY}"
-    ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${METHAN_INTERNAL_BINARY_DIRECTORY}"
-    LIBRARY_OUTPUT_DIRECTORY_RELEASE "${METHAN_INTERNAL_BINARY_DIRECTORY}"
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${METHAN_INTERNAL_BINARY_DIRECTORY}"
     SOVERSION ${METHAN_VERSION_MAJOR}.${METHAN_VERSION_MINOR})
 
-# Setup the install targegt
+# Setup the install target
 message(STATUS "Setting up the installation target....................")
 message("   > Install directory: ${METHAN_INSTALL_PREFIX}/")
 install(TARGETS Methan
@@ -89,6 +74,12 @@ if(${METHAN_EXPOSE_PRIVATE})
         PATTERN "methan/private")
 endif()
 
+# Install all dll EXCEPT the Methan dll (already done)
+foreach(_DynamicLib ${METHAN_INTERNAL_SHARED_LIST})
+    install(FILES "${METHAN_INTERNAL_BINARY_DIRECTORY}/${_DynamicLib}"
+            DESTINATION "${METHAN_INSTALL_BINARY_DIR}")
+endforeach()
+
 # Install cmake(s) file(s) in order to make it a cmake package
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/MethanConfig.cmake.in"
@@ -100,4 +91,3 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/MethanConfig.cmake"
               "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindMethan.cmake"
         DESTINATION "${METHAN_INSTALL_CMAKE_DIR}")
 
-# install(EXPORT MethanTargets DESTINATION "${METHAN_INSTALL_CMAKE_DIR}")
