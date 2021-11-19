@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.12)
+
+@PACKAGE_INIT@
+
+set(Methan_VERSION_MAJOR @METHAN_VERSION_MAJOR@)
+set(Methan_VERSION_MINOR @METHAN_VERSION_MINOR@)
+set(Methan_VERSION_PATCH @METHAN_VERSION_PATCH@)
+set(Methan_VERSION @METHAN_VERSION@)
+set(Methan_BUILD_SHARED @METHAN_BUILD_SHARED@)
+message(STATUS "Configuring Methan v${Methan_VERSION}")
+
+set_and_check(Methan_INCLUDE_DIRS "@PACKAGE_METHAN_INSTALL_INCLUDE_DIR@")
+set_and_check(Methan_LIBRARIES "@PACKAGE_METHAN_INSTALL_LIBRARY_DIR@/Methan.lib")
+
+if(${Methan_BUILD_SHARED})
+    set(METHAN_INTERNAL_SHARED_LIST "@METHAN_INTERNAL_SHARED_LIST@")
+    set(METHAN_SHARED_LIBRARY_PATHS "")
+    foreach(_SharedLibs ${METHAN_INTERNAL_SHARED_LIST})
+        list(APPEND METHAN_SHARED_LIBRARY_PATHS "@PACKAGE_METHAN_INSTALL_BINARY_DIR@/${_SharedLibs}")
+    endforeach()
+endif()
+
+check_required_components(Methan)
+
+add_library(Methan @METHAN_BUILD_MODE@ IMPORTED)
+if(${Methan_BUILD_SHARED})
+    set_property(TARGET Methan APPEND PROPERTY IMPORTED_IMPLIB "${Methan_LIBRARIES}")
+endif()
+
+set_target_properties(Methan PROPERTIES
+    IMPORTED_LINK_INTERFACE_LANGUAGES   "CXX"
+    IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+    IMPORTED_LOCATION_DEBUG "${Methan_LIBRARIES}"
+    IMPORTED_LOCATION "${Methan_LIBRARIES}")
+
+target_include_directories(Methan INTERFACE "${Methan_INCLUDE_DIRS}")
