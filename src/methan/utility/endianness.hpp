@@ -12,7 +12,7 @@ namespace Methan {
         LittleEndian
     };
 
-#ifdef METHAN_PREFER_LITTLE_ENDIAN
+#if defined(METHAN_PREFER_LITTLE_ENDIAN)
     static constexpr Endianness preferred_endianness = Endianness::LittleEndian;
 #else
     static constexpr Endianness preferred_endianness = Endianness::BigEndian;
@@ -54,9 +54,9 @@ namespace Methan {
         return dest.u;
     }
 
-#ifdef METHAN_USE_INTRINSIC
+#if defined(METHAN_USE_INTRINSIC)
 
-#ifdef METHAN_COMPILER_MSC
+#if defined(METHAN_COMPILER_MSC)
     template<>
     inline uint64_t swap_endian(uint64_t u)
     {
@@ -74,7 +74,7 @@ namespace Methan {
     {
         return _byteswap_ushort(u);
     }
-#elif METHAN_COMPILER_GCC
+#elif defined(METHAN_COMPILER_GCC)
     template<>
     LUNAR_INLINE uint64_t swap_endian(uint64_t u) {
         return __builtin_bswap64(u);
@@ -85,9 +85,6 @@ namespace Methan {
         return __builtin_bswap32(u);
     }
 #endif
-
-
-
 #endif
 
     template<>
