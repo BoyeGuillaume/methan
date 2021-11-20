@@ -76,12 +76,12 @@ namespace Methan {
     }
 #elif defined(METHAN_COMPILER_GCC)
     template<>
-    LUNAR_INLINE uint64_t swap_endian(uint64_t u) {
+    inline uint64_t swap_endian(uint64_t u) {
         return __builtin_bswap64(u);
     }
 
     template<>
-    LUNAR_INLINE uint32_t swap_endian(uint32_t u) {
+    inline uint32_t swap_endian(uint32_t u) {
         return __builtin_bswap32(u);
     }
 #endif

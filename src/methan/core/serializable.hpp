@@ -60,7 +60,7 @@ namespace Methan {
             __private__::__serde<T>().serialize(output, u);
         }
 
-        template<typename T, typename = std::enable_if<std::is_constructible<T>::value>::type>
+        template<typename T, typename = typename std::enable_if<std::is_constructible<T>::value>::type>
         static inline T deserialize(std::istream& input)
         {
             T _u;
