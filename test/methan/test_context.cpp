@@ -1,5 +1,3 @@
-#pragma once
-
 #include <methan/core/context.hpp>
 #include <catch2/catch_test_macros.hpp>
 
