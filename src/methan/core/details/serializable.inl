@@ -22,16 +22,16 @@ namespace Methan::__private__ {
 
         inline void deserialize(std::istream& input, std::string& u)
         {
-            size_t _size;
-            __serde<size_t>().deserialize(input, _size);
-            u.resize(_size);
+            uint32_t _size;
+            __serde<uint32_t>().deserialize(input, _size);
+            u.resize((size_t) _size);
             input.read(u.data(), u.size());
         }
 
         inline void serialize(std::ostream& output, const std::string& u)
         {
-            size_t _size = u.size();
-            __serde<size_t>().serialize(output, _size);
+            uint32_t _size = (size_t) u.size();
+            __serde<uint32_t>().serialize(output, _size);
             output.write(u.data(), _size);
         }
     };
@@ -55,16 +55,16 @@ namespace Methan::__private__ {
     {
         inline void deserialize(std::istream& input, std::vector<T, _Alloc>& _vector)
         {
-            size_t _size;
-            __serde<size_t>().deserialize(input, _size);
-            _vector.resize(_size);
+            uint32_t _size;
+            __serde<uint32_t>().deserialize(input, _size);
+            _vector.resize((size_t) _size);
             for (size_t i = 0; i < _size; ++i) __serde<T>().deserialize(input, _vector[i]);
         }
 
         inline void serialize(std::ostream& output, const std::vector<T, _Alloc>& _vector)
         {
-            size_t _size = _vector.size();
-            __serde<size_t>().serialize(output, _size);
+            uint32_t _size = (size_t) _vector.size();
+            __serde<uint32_t>().serialize(output, _size);
             for (size_t i = 0; i < _size; ++i) __serde<T>().serialize(output, _vector[i]);
         }
     };
