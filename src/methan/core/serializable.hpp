@@ -24,12 +24,6 @@
         METHAN_EXPAND(METHAN_FOR_EACH_P1(__METHAN_SERIALIZABLE_HELPER_S__, Type, __VA_ARGS__))      \
     }
 
-template<typename T>
-inline void __p_serde__deserialize(std::istream&, T&);
-
-template<typename T>
-inline void __p_serde__serialize(std::ostream&, const T&);
-
 namespace Methan::__private__ {
 
     template<typename T>

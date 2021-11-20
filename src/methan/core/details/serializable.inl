@@ -30,7 +30,7 @@ namespace Methan::__private__ {
 
         inline void serialize(std::ostream& output, const std::string& u)
         {
-            uint32_t _size = (size_t) u.size();
+            uint32_t _size = (uint32_t) u.size();
             __serde<uint32_t>().serialize(output, _size);
             output.write(u.data(), _size);
         }
@@ -63,7 +63,7 @@ namespace Methan::__private__ {
 
         inline void serialize(std::ostream& output, const std::vector<T, _Alloc>& _vector)
         {
-            uint32_t _size = (size_t) _vector.size();
+            uint32_t _size = (uint32_t) _vector.size();
             __serde<uint32_t>().serialize(output, _size);
             for (size_t i = 0; i < _size; ++i) __serde<T>().serialize(output, _vector[i]);
         }
