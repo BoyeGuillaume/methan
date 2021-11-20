@@ -49,7 +49,7 @@ namespace Methan {
         source.u = u;
 
         for(size_t i = 0; i < sizeof(T); ++i)
-            dest.u8[k] = source.u8[sizeof(T) - k - 1];
+            dest.u8[i] = source.u8[sizeof(T) - i - 1];
         
         return dest.u;
     }
