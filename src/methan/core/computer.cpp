@@ -65,7 +65,7 @@ METHAN_API Methan::Computer Methan::create_self(Context context, EComputerType c
             METHAN_THROW_EXCEPTION("The call to `gethostname` failed for unkown reason. ErrCode : " + std::to_string(errno), ExceptionType::Unknown);
         }
 
-        if(!getlogin_r(UsernaeBuf, sizeof(UsernameBuf))) {
+        if(!getlogin_r(UsernameBuf, sizeof(UsernameBuf))) {
             METHAN_THROW_EXCEPTION("The call to `getlogin_r` failed for unkown reason. ErrCode : " + std::to_string(errno), ExceptionType::Unknown);
         }
 
