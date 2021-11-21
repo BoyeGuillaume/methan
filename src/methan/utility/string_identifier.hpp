@@ -16,7 +16,7 @@
 
 #if defined(METHAN_COMPILER_GCC) || defined(METHAN_COMPILER_CLANG)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wno-literal-suffix"
+#pragma GCC diagnostic ignored "-Wliteral-suffix"
 #elif defined(METHAN_COMPILER_MSC)
 #pragma warning(push)
 #pragma warning(disable: 4455)
