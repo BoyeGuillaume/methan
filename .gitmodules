@@ -7,3 +7,6 @@
 [submodule "third_party/sockpp"]
 	path = third_party/sockpp
 	url = https://github.com/fpagliughi/sockpp.git
+[submodule "third_party/brynet"]
+	path = third_party/brynet
+	url = https://github.com/IronsDu/brynet.git
