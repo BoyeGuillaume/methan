@@ -62,11 +62,11 @@ METHAN_API Methan::Computer Methan::create_self(Context context, EComputerType c
     
         std::lock_guard<std::recursive_mutex> guard(context->__system_m);
         if(!gethostname(HostnameBuf, sizeof(HostnameBuf))) {
-            METHAN_THROW_EXCEPTION("The call to `gethostname` failed for unkown reason. ErrCode : " + std::to_string(errno));
+            METHAN_THROW_EXCEPTION("The call to `gethostname` failed for unkown reason. ErrCode : " + std::to_string(errno), ExceptionType::Unknown);
         }
 
         if(!getlogin_r(UsernaeBuf, sizeof(UsernameBuf))) {
-            METHAN_THROW_EXCEPTION("The call to `getlogin_r` failed for unkown reason. ErrCode : " + std::to_string(errno));
+            METHAN_THROW_EXCEPTION("The call to `getlogin_r` failed for unkown reason. ErrCode : " + std::to_string(errno), ExceptionType::Unknown);
         }
 
         hostname = std::string(HostnameBuf);
