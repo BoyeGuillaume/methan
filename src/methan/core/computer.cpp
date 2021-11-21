@@ -2,6 +2,7 @@
 #include <methan/private/private_computer.hpp>
 #include <methan/private/private_context.hpp>
 #include <methan/private/private_formatter.hpp>
+#include <methan/private/private_get_last_error.hpp>
 
 #include <mutex>
 #include <cstring>
@@ -44,11 +45,11 @@ METHAN_API Methan::Computer Methan::create_self(Context context, EComputerType c
         
         std::lock_guard<std::recursive_mutex> guard(context->__system_m);
         if(!GetComputerName(HostnameBuf, &HostnameBufSize)) {
-            METHAN_THROW_EXCEPTION("The call to `GetComputerName` failed for unknown reason. ErrCode: " + std::to_string(GetLastError()), ExceptionType::Unknown);
+            METHAN_THROW_EXCEPTION("The call to `GetComputerName` failed for unknown reason. ErrCode: " + METHAN_LAST_ERROR, ExceptionType::Unknown);
         }
 
         if(!GetUserName(UsernameBuf, &UsernameBufSize)) {
-            METHAN_THROW_EXCEPTION("The call to `GetUserName` failed for unknown reason. ErrCode: " + std::to_string(GetLastError()), ExceptionType::Unknown);
+            METHAN_THROW_EXCEPTION("The call to `GetUserName` failed for unknown reason. ErrCode: " + METHAN_LAST_ERROR, ExceptionType::Unknown);
         }
 
         hostname = std::string(HostnameBuf);
@@ -62,11 +63,11 @@ METHAN_API Methan::Computer Methan::create_self(Context context, EComputerType c
     
         std::lock_guard<std::recursive_mutex> guard(context->__system_m);
         if(!gethostname(HostnameBuf, sizeof(HostnameBuf))) {
-            METHAN_THROW_EXCEPTION("The call to `gethostname` failed for unkown reason. ErrCode : " + std::to_string(errno), ExceptionType::Unknown);
+            METHAN_THROW_EXCEPTION("The call to `gethostname` failed for unkown reason. ErrCode : " + METHAN_LAST_ERROR, ExceptionType::Unknown);
         }
 
         if(!getlogin_r(UsernameBuf, sizeof(UsernameBuf))) {
-            METHAN_THROW_EXCEPTION("The call to `getlogin_r` failed for unkown reason. ErrCode : " + std::to_string(errno), ExceptionType::Unknown);
+            METHAN_THROW_EXCEPTION("The call to `getlogin_r` failed for unkown reason. ErrCode : " + METHAN_LAST_ERROR, ExceptionType::Unknown);
         }
 
         hostname = std::string(HostnameBuf);
