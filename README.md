@@ -13,6 +13,7 @@ Methan is a C++ library aimed at creating computational graph and optimising suc
   - [Table Of Content](#table-of-content)
   - [Installation](#installation)
   - [Authors](#authors)
+  - [Internal Documentation](#internal-documentation)
 
 ## Installation
 
@@ -36,3 +37,6 @@ cmake --build . --target install
 ## Authors
 The library has been made possible thanks to
 * BoyeGuillaume
+
+## Internal Documentation
+If you are interrested in the internal layout of the library you can check the [internal documentation](doc/internal.md)
