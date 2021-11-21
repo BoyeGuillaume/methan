@@ -10,11 +10,6 @@
 
 namespace Methan {
 
-    enum class EComputerType : uint8_t {
-        Observer,
-        Master,
-        Slave
-    };
 
     enum class ELogLevel {
         Off,
@@ -76,14 +71,6 @@ namespace Methan {
         METHAN_API ContextBuilder& add_logger_rotating_file(const std::string& filename, ELogLevel level, DataSize maxSize = 4_KB, size_t maxFiles = 3);
 
         /**
-         * @brief Set the computer type the context is corresponding to. May be Master/Client/Observer. Default is (master)
-         * 
-         * @param computerType The new computer type
-         * @return METHAN_API& 
-         */
-        METHAN_API ContextBuilder& self_as(EComputerType computerType);
-
-        /**
          * @brief Construct the Context object based on the current configuration. May result in an error if the given configuration isn't complete
          * or is invalid.
          * @throw Methan::Exception If the configuration for creating the context is invalid
@@ -94,7 +81,6 @@ namespace Methan {
 
     private:
         std::vector<Methan::Varient> m_sinks;
-        EComputerType m_computerType;
     };
 
     /**

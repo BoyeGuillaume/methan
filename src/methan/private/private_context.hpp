@@ -9,7 +9,6 @@
 
 #include <methan/core/except.hpp>
 #include <methan/core/context.hpp>
-#include <methan/core/computer.hpp>
 #include <methan/utility/uuid.hpp>
 
 #define METHAN_LOG(logger, level, ...)                                                 logger->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, level, __VA_ARGS__)
@@ -32,7 +31,6 @@ namespace Methan::__private__ {
 
         std::recursive_mutex __system_m;
 
-        Computer* self;
     };
 
     /**
