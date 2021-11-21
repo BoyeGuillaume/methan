@@ -48,7 +48,7 @@ TEST_CASE("Random UUID generated (Collision test) [heavy]", "[uuid]") {
 TEST_CASE("spdlog accept uuid", "[uuid]") {
     Methan::Uuid uuid = {0x123e4567e89b12d3ULL, 0xa456426614174000ULL};
     Methan::Context context = Methan::ContextBuilder()
-        .add_logger_stdout(Methan::LogLevel::Debug)
+        .add_logger_stdout(Methan::ELogLevel::Debug)
         .build();
 
     METHAN_LOG_DEBUG(context->logger, "This is the generated uuid : {}", uuid);

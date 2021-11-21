@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
@@ -8,6 +9,8 @@
 
 #include <methan/core/except.hpp>
 #include <methan/core/context.hpp>
+#include <methan/core/computer.hpp>
+#include <methan/utility/uuid.hpp>
 
 #define METHAN_LOG(logger, level, ...)                                                 logger->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, level, __VA_ARGS__)
 #define METHAN_LOG_DEBUG(logger, ...)                                                  METHAN_LOG(logger, spdlog::level::debug, __VA_ARGS__)
@@ -23,34 +26,41 @@ namespace Methan::__private__ {
     {
         std::shared_ptr<spdlog::details::thread_pool> logger_thread_pool;
         std::shared_ptr<spdlog::async_logger> logger;
+    
+        std::mutex __uuid_factory_m;
+        Methan::UuidFactory uuid_factory;
+
+        std::recursive_mutex __system_m;
+
+        Computer* self;
     };
 
     /**
      * @brief Convert the Methan::LogLevel to the corresponding stdlog::level
      * 
-     * @param level the Methan::LogLevel
-     * @return spdlog::level::level_enum the corresponding LogLevel
+     * @param level the Methan::ELogLevel
+     * @return spdlog::level::level_enum the corresponding ELogLevel
      */
-    inline spdlog::level::level_enum to_spdlog_enum(Methan::LogLevel level)
+    inline spdlog::level::level_enum to_spdlog_enum(Methan::ELogLevel level)
     {
         switch(level)
         {
-        case Methan::LogLevel::Off:
+        case Methan::ELogLevel::Off:
             return spdlog::level::off;
 
-        case Methan::LogLevel::Critical:
+        case Methan::ELogLevel::Critical:
             return spdlog::level::critical;
 
-        case Methan::LogLevel::Warning:
+        case Methan::ELogLevel::Warning:
             return spdlog::level::warn;
 
-        case Methan::LogLevel::Error:
+        case Methan::ELogLevel::Error:
             return spdlog::level::err;
         
-        case Methan::LogLevel::Info:
+        case Methan::ELogLevel::Info:
             return spdlog::level::info;
 
-        case Methan::LogLevel::Debug:
+        case Methan::ELogLevel::Debug:
             return spdlog::level::debug;
         };
 

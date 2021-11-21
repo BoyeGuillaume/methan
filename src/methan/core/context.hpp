@@ -8,10 +8,15 @@
 #include <methan/utility/varient.hpp>
 #include <methan/utility/data_literals.hpp>
 
-
 namespace Methan {
 
-    enum class LogLevel {
+    enum class EComputerType : uint8_t {
+        Observer,
+        Master,
+        Slave
+    };
+
+    enum class ELogLevel {
         Off,
         Critical,
         Error,
@@ -47,7 +52,7 @@ namespace Methan {
          * @param supportColor Do we use color during the output
          * @return ContextBuilder& reference to the current ContextBuilder object 
          */
-        METHAN_API ContextBuilder& add_logger_stdout(LogLevel logLevel, bool supportColor = true);
+        METHAN_API ContextBuilder& add_logger_stdout(ELogLevel logLevel, bool supportColor = true);
 
         /**
          * @brief Add a new output logger corresponding to a given file
@@ -56,7 +61,7 @@ namespace Methan {
          * @param level the log level corresponding to that output
          * @return ContextBuilder& reference to the current ContextBuilder object
          */
-        METHAN_API ContextBuilder& add_logger_file(const std::string& filename, LogLevel level);
+        METHAN_API ContextBuilder& add_logger_file(const std::string& filename, ELogLevel level);
 
         /**
          * @brief Add a new output logger corresponding to a rotating file (group of `maxFiles` files that are write
@@ -68,7 +73,15 @@ namespace Methan {
          * @param maxFiles the maximum number of file that can be written before overwrite the first file
          * @return ContextBuilder& reference to the current ContextBuilder object 
          */
-        METHAN_API ContextBuilder& add_logger_rotating_file(const std::string& filename, LogLevel level, DataSize maxSize = 4_KB, size_t maxFiles = 3);
+        METHAN_API ContextBuilder& add_logger_rotating_file(const std::string& filename, ELogLevel level, DataSize maxSize = 4_KB, size_t maxFiles = 3);
+
+        /**
+         * @brief Set the computer type the context is corresponding to. May be Master/Client/Observer. Default is (master)
+         * 
+         * @param computerType The new computer type
+         * @return METHAN_API& 
+         */
+        METHAN_API ContextBuilder& self_as(EComputerType computerType);
 
         /**
          * @brief Construct the Context object based on the current configuration. May result in an error if the given configuration isn't complete
@@ -81,6 +94,7 @@ namespace Methan {
 
     private:
         std::vector<Methan::Varient> m_sinks;
+        EComputerType m_computerType;
     };
 
     /**
