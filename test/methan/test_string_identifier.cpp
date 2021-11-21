@@ -118,7 +118,7 @@ using namespace Methan;
 
 TEST_CASE("StringIdentifier correctly serialized", "[hash]") {
     std::vector<StringIdentifier> strs = {
-        "9NIPsXL5Kiq9GH5sokdJbsdBalE"id, "4jRa3BagHRhFmJSEb2hfCJEdr5U"id, "EFdq8ePgu1Cn01Ua7oRgDvQF6xM"id, "HCE79ciGRNv_VCUmX4Eg9pF9spA"id
+        "9NIPsXL5Kiq9GH5sokdJbsdBalE"_id, "4jRa3BagHRhFmJSEb2hfCJEdr5U"_id, "EFdq8ePgu1Cn01Ua7oRgDvQF6xM"_id, "HCE79ciGRNv_VCUmX4Eg9pF9spA"_id
     };
 
     for(const StringIdentifier& identifier : strs)

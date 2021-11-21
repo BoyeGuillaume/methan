@@ -14,17 +14,6 @@
 #define METHAN_IDENTIFIER(name)                                   std::integral_constant<Methan::StringIdentifier, Methan::__private__::crc32(name, sizeof(name) - 1)>::value
 #endif
 
-#if defined(METHAN_COMPILER_GCC)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wliteral-suffix"
-#elif defined(METHAN_COMPILER_CLANG)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreserved-user-defined-literal"
-#elif defined(METHAN_COMPILER_MSC)
-#pragma warning(push)
-#pragma warning(disable: 4455)
-#endif 
-
 namespace Methan {
 
 #ifdef METHAN_DEBUG
@@ -70,13 +59,13 @@ namespace Methan {
         METHAN_SERDE_GENERATOR(StringIdentifier, m_name, m_hash);
     };
 
-    inline StringIdentifier operator"" id(const char* data, size_t length) {
+    inline StringIdentifier operator"" _id(const char* data, size_t length) {
         return StringIdentifier(data);
     }
 #else
     typedef uint32_t StringIdentifier;
 
-    constexpr StringIdentifier operator"" id(const char* data, size_t length) {
+    constexpr StringIdentifier operator"" _id(const char* data, size_t length) {
         return Methan::__private__::crc32(data, length);
     }
 #endif
@@ -97,10 +86,3 @@ namespace std {
 
 }
 #endif
-
-#if defined(METHAN_COMPILER_GCC) || defined(METHAN_COMPILER_CLANG)
-#pragma GCC diagnostic pop
-#elif defined(METHAN_COMPILER_MSC)
-#pragma warning(pop)
-#endif 
-
