@@ -29,6 +29,7 @@
 #define METHAN_COMPILER_NAME           "Microsoft Visual C/C++"
 #elif defined(__llvm__)
 #define METHAN_COMPILER_LLVM
+#define METHAN_COMPILER_CLANG
 #define METHAN_COMPILER_NAME           "LLVM"
 #elif defined(__MINGW32__)
 #define METHAN_COMPILER_MINGW

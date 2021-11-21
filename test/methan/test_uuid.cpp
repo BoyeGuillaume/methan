@@ -1,8 +1,11 @@
+#include <unordered_set>
+#include <sstream>
+
 #include <catch2/catch_test_macros.hpp>
 #include <methan/utility/uuid.hpp>
 #include <methan/private/private_formatter.hpp>
 #include <methan/private/private_context.hpp>
-#include <unordered_set>
+#include <methan/core/serializable.hpp>
 
 TEST_CASE("UUID correctly compare from one another", "[uuid]") {
     Methan::Uuid a(0x56FF5168, 0xFF326518);
@@ -34,14 +37,15 @@ TEST_CASE("Random UUID generated (Collision test) [heavy]", "[uuid]") {
     Methan::UuidFactory factory;
     std::unordered_set<Methan::Uuid> generated;
 
-    for(size_t i = 0; i < 500000; ++i) {
+    for(size_t i = 0; i < 500000; ++i)
+    {
         Methan::Uuid uuid = factory();
         REQUIRE(generated.count(uuid) == 0);
         generated.insert(uuid);
     }
 }
 
-TEST_CASE("spdlog accept uuid") {
+TEST_CASE("spdlog accept uuid", "[uuid]") {
     Methan::Uuid uuid = {0x123e4567e89b12d3ULL, 0xa456426614174000ULL};
     Methan::Context context = Methan::ContextBuilder()
         .add_logger_stdout(Methan::LogLevel::Debug)
@@ -51,3 +55,15 @@ TEST_CASE("spdlog accept uuid") {
 
     Methan::free(context);
 }
+
+TEST_CASE("uuid can be serialize", "[uuid]") {
+    Methan::UuidFactory factory;
+    for(size_t i = 0; i < 10; ++i)
+    {
+        std::stringstream ss;
+        Methan::Uuid uuid = factory();
+        Methan::Serde::serialize(ss, uuid);
+        REQUIRE(uuid == Methan::Serde::deserialize<Methan::Uuid>(ss));
+    }
+}
+

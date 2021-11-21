@@ -6,6 +6,7 @@
 
 #include <methan/core/except.hpp>
 #include <methan/utility/endianness.hpp>
+#include <methan/core/serializable.hpp>
 
 namespace Methan {
 
@@ -134,6 +135,19 @@ namespace Methan {
    private:
       std::array<uint64_t, 2> m_data;
       std::array<uint64_t, 2> m_ps_data; // Platform specific = with platform endianness
+      
+      friend struct Methan::__private__::__serde<Uuid>;
+      inline friend void __p_serde__deserialize(std::istream& input, Uuid& u)
+      {
+         std::array<uint64_t, 2> data;
+         Methan::Serde::deserialize(input, data);
+         u = Uuid(data[0], data[1]);
+      }
+      
+      inline friend void __p_serde__serialize(std::ostream& output, const Uuid& u)
+      {
+         Methan::Serde::serialize(output, u.m_ps_data);
+      }
    };
 
    class UuidFactory

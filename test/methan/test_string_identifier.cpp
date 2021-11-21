@@ -1,10 +1,9 @@
+#include <sstream>
 #include <catch2/catch_test_macros.hpp>
 
 #include <methan/core/configuration.hpp>
-#ifndef METHAN_DEBUG
-#define METHAN_DEBUG
-#endif
 #include <methan/utility/string_identifier.hpp>
+#include <methan/core/serializable.hpp>
 
 TEST_CASE("StringIdentifier correctly distinguish non-matching elements", "[hash]") {
     REQUIRE(METHAN_IDENTIFIER("HCE79ciGRNv_VCUmX4Eg9pF9spA") != METHAN_IDENTIFIER("Vxgbr-xxOHTr77RBEdihPhIgyyc"));
@@ -113,4 +112,19 @@ TEST_CASE("StringIdentifier is correctly equal onto the same input", "[hash]") {
     REQUIRE(METHAN_IDENTIFIER("HCE79ciGRNv_VCUmX4Eg9pF9spA") == METHAN_IDENTIFIER("HCE79ciGRNv_VCUmX4Eg9pF9spA"));
     REQUIRE(METHAN_IDENTIFIER("HELLO WORLD") == METHAN_IDENTIFIER("HELLO WORLD"));
     REQUIRE(METHAN_IDENTIFIER("This Is Not What You Might Think But Hey") == METHAN_IDENTIFIER("This Is Not What You Might Think But Hey"));
+}
+
+using namespace Methan;
+
+TEST_CASE("StringIdentifier correctly serialized", "[hash]") {
+    std::vector<StringIdentifier> strs = {
+        "9NIPsXL5Kiq9GH5sokdJbsdBalE"id, "4jRa3BagHRhFmJSEb2hfCJEdr5U"id, "EFdq8ePgu1Cn01Ua7oRgDvQF6xM"id, "HCE79ciGRNv_VCUmX4Eg9pF9spA"id
+    };
+
+    for(const StringIdentifier& identifier : strs)
+    {
+        std::stringstream ss;
+        Serde::serialize<StringIdentifier>(ss, identifier);
+        REQUIRE(identifier == Serde::deserialize<StringIdentifier>(ss));
+    }
 }
