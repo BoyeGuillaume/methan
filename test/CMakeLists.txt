@@ -14,8 +14,9 @@ foreach(_SHARED_LIBS ${METHAN_INTERNAL_SHARED_LIST})
     add_custom_target(METHAN_INTERNAL_TARGET_TEST_COPY_${_SHARED_LIBS} ALL
         ${CMAKE_COMMAND} -E copy
             "\"${METHAN_INTERNAL_BINARY_DIRECTORY}/${_SHARED_LIBS}\""
-            "\"${CMAKE_CURRENT_BINARY_DIR}/${_SHARED_LIBS}\""
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/__this_file_doesnot_exists.h) # This little hack ensure this command is always run
+            "\"${CMAKE_CURRENT_BINARY_DIR}/${_SHARED_LIBS}\"") # This little hack ensure this command is always run
+    add_dependencies(METHAN_INTERNAL_TARGET_TEST_COPY_${_SHARED_LIBS} Methan)
+    add_dependencies(METHAN_INTERNAL_TARGET_TEST_COPY_${_SHARED_LIBS} spdlog)
 endforeach()
 
 
