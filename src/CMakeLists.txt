@@ -34,9 +34,9 @@ endif()
 
 # Configure dependencies of the Methan library
 if(WIN32)
-    target_link_libraries(Methan PRIVATE spdlog::spdlog sockpp wsock32 ws2_32)
+    target_link_libraries(Methan PRIVATE spdlog::spdlog wsock32 ws2_32)
 else()
-    target_link_libraries(Methan PRIVATE spdlog::spdlog sockpp)
+    target_link_libraries(Methan PRIVATE spdlog::spdlog)
 endif()
 
 # Configuring internal variable used throughout the project
