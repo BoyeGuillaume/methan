@@ -30,6 +30,10 @@
 *.exe
 *.out
 *.app
+*.ignored
+
+**.build/
+**.install/
 
 # Building files & Workspace
 **/[bB]uild

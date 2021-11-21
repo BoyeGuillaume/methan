@@ -31,8 +31,14 @@ else()
     set(METHAN_BUILD_MODE STATIC)
 endif()
 
+
 # Configure dependencies of the Methan library
-target_link_libraries(Methan PRIVATE spdlog::spdlog)
+target_include_directories(Methan PUBLIC "${METHAN_THIRD_PARTY_FOLDER}/sockpp.install/include/")
+if(WIN32)
+    target_link_libraries(Methan PRIVATE spdlog::spdlog sockpp wsock32 ws2_32)
+else()
+    target_link_libraries(Methan PRIVATE spdlog::spdlog sockpp)
+endif( )
 
 # Configuring internal variable used throughout the project
 set(METHAN_INTERNAL_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

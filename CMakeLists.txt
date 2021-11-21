@@ -7,6 +7,7 @@ project(Methan LANGUAGES CXX VERSION 0.1.0)
 # Include utility
 include(cmake/ExtractVersion.cmake)
 include(cmake/GetDynamicLibName.cmake)
+include(cmake/GetStaticLibName.cmake)
 
 # Extracting the version form the project version
 extract_version(${CMAKE_PROJECT_VERSION} "METHAN")
@@ -61,8 +62,33 @@ endif()
 add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/spdlog")
 set_target_properties(spdlog PROPERTIES DEBUG_POSTFIX "") # A little hacky solution has everyone loves
 
+# Add & Build the sockpp library if not already built
+message(STATUS "Build sockPP for both shared and static target")
+add_custom_target(BuildSockPPMakeFolder ALL
+    ${CMAKE_COMMAND} -E make_directory "${METHAN_THIRD_PARTY_FOLDER}/sockpp.build")
+
+add_custom_target(BuildSockPPConfigure ALL
+    ${CMAKE_COMMAND} ../sockpp/ -DSOCKPP_BUILD_SHARED=ON -DSOCKPP_BUILD_STATIC=ON -DCMAKE_INSTALL_PREFIX="${METHAN_THIRD_PARTY_FOLDER}/sockpp.install"
+    WORKING_DIRECTORY "${METHAN_THIRD_PARTY_FOLDER}/sockpp.build")
+
+add_custom_target(BuildSockPPBuild ALL
+    ${CMAKE_COMMAND} --build . --target install
+    WORKING_DIRECTORY "${METHAN_THIRD_PARTY_FOLDER}/sockpp.build")
+    
+add_dependencies(BuildSockPPConfigure BuildSockPPMakeFolder) 
+add_dependencies(BuildSockPPBuild BuildSockPPConfigure)  
+
+# Add sockpp static library
+message(STATUS "Add sockpp dependencies")
+get_static_lib_name(_METHAN_STATIC_LIB_NAME "sockpp-static")
+add_library(sockpp STATIC IMPORTED)
+set_property(TARGET sockpp PROPERTY
+    IMPORTED_LOCATION "${METHAN_THIRD_PARTY_FOLDER}/sockpp.install/lib/${_METHAN_STATIC_LIB_NAME}")
+
+
 # Adding source subdirectory
 add_subdirectory(src)
+
 if(${METHAN_BUILD_TEST})
     message(STATUS "Importing Catch.......................................")
     add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/Catch2")

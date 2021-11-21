@@ -8,9 +8,16 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 
+#include <sockpp/socket.h>
+#include <sockpp/udp_socket.h>
+
+
 METHAN_API Methan::ContextBuilder::ContextBuilder()
 {
-    
+    sockpp::socket_initializer sockInit;
+    sockpp::udp_socket sock;
+    sockpp::inet_address addr("localhost", 8888);
+    sock.send_to("Hello world", addr);    
 }
 
 METHAN_API Methan::ContextBuilder::~ContextBuilder()
