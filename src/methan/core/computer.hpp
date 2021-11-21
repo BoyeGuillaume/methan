@@ -15,11 +15,11 @@ namespace Methan {
         METHAN_API Computer(Context context, std::string hostname, std::string username, const Uuid& uuid, EComputerType computerType);
 
         inline const std::string& hostname() const {
-            m_hostname;
+            return m_hostname;
         }
 
         inline const std::string& username() const {
-            m_username;
+            return m_username;
         }
 
         inline EComputerType computer_type() const {
