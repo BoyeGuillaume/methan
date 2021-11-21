@@ -55,7 +55,8 @@ METHAN_API Methan::Context Methan::ContextBuilder::build()
     Context context = new __private__::__Context();
     context->logger_thread_pool = std::make_shared<spdlog::details::thread_pool>(4096, 1);
     context->logger = std::make_shared<spdlog::async_logger>("console", sinks.begin(), sinks.end(), context->logger_thread_pool, spdlog::async_overflow_policy::block);
-    context->logger->set_pattern("[%Y-%d-%m %X.%e%z] [%l] [tid=%t] (%s:%#) %L %v ", spdlog::pattern_time_type::local);
+    context->logger->set_pattern("[%Y-%d-%m %X.%e%z] [%l] [tid=%t] (%s:%#) %v ", spdlog::pattern_time_type::local);
+    context->logger->set_level(spdlog::level::debug);
 
     // Log the context creation
     METHAN_LOG_INFO(context->logger, "Initialisation of the context object at {}", spdlog::fmt_lib::ptr(context));

@@ -5,7 +5,7 @@
 
 #include <methan/core/except.hpp>
 #include <methan/utility/assertion.hpp>
-#include <methan/utility/crc32.hpp>
+#include <methan/utility/hash/crc32.hpp>
 
 #ifdef METHAN_DEBUG
 #define METHAN_IDENTIFIER(name)                                   Methan::StringIdentifier(name)
@@ -41,6 +41,11 @@ namespace Methan {
             return !(lhs == rhs);
         } 
 
+        inline size_t hash() const
+        {
+            return std::hash<uint32_t>()(m_hash);
+        }
+
     private:
         const char* m_name;
         uint32_t m_hash;
@@ -50,3 +55,18 @@ namespace Methan {
 #endif
 
 }
+
+#ifdef METHAN_DEBUG
+namespace std {
+
+    template<>
+    struct hash<Methan::StringIdentifier>
+    {
+        inline size_t operator()(const Methan::StringIdentifier& identifier)
+        {
+            return identifier.hash();
+        }
+    };
+
+}
+#endif

@@ -127,4 +127,18 @@ namespace Methan {
         else return swap_endian<T>(u);
     }
 
+    template<typename T>
+    inline T to_endianness(T u, Endianness endianness)
+    {
+        if(system_endianness == endianness) return u;
+        else return swap_endian<T>(u);
+    }
+
+    template<typename T>
+    inline T from_endianness(T u, Endianness endianness)
+    {
+        if(system_endianness == endianness) return u;
+        else return swap_endian<T>(u);
+    }
+
 }
