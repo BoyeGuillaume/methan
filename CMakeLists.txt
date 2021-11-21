@@ -82,9 +82,9 @@ add_dependencies(BuildSockPPBuild BuildSockPPConfigure)
 message(STATUS "Add sockpp dependencies")
 get_static_lib_name(_METHAN_STATIC_LIB_NAME "sockpp-static")
 add_library(sockpp STATIC IMPORTED)
-set_property(TARGET sockpp PROPERTY
+set_target_properties(sockpp PROPERTIES
     IMPORTED_LOCATION "${METHAN_THIRD_PARTY_FOLDER}/sockpp.install/lib/${_METHAN_STATIC_LIB_NAME}")
-
+add_dependencies(sockpp BuildSockPPBuild)
 
 # Adding source subdirectory
 add_subdirectory(src)

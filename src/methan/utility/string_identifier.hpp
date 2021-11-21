@@ -14,9 +14,12 @@
 #define METHAN_IDENTIFIER(name)                                   std::integral_constant<Methan::StringIdentifier, Methan::__private__::crc32(name, sizeof(name) - 1)>::value
 #endif
 
-#if defined(METHAN_COMPILER_GCC) || defined(METHAN_COMPILER_CLANG)
+#if defined(METHAN_COMPILER_GCC)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wliteral-suffix"
+#elif defined(METHAN_COMPILER_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreserved-user-defined-literal"
 #elif defined(METHAN_COMPILER_MSC)
 #pragma warning(push)
 #pragma warning(disable: 4455)
