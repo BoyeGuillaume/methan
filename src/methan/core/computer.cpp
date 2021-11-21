@@ -55,19 +55,20 @@ METHAN_API Methan::Computer Methan::create_self(Context context, EComputerType c
         hostname = std::string(HostnameBuf);
         username = std::string(UsernameBuf);
     }
+     
 #elif defined(METHAN_OS_UNIX_LIKE)
     {
-        char HostnameBuf[METHAN_SMALL_BUFFER_SIZE];
-        char UsernameBuf[METHAN_SMALL_BUFFER_SIZE];
+        char HostnameBuf[HOST_NAME_MAX + 1];
+        char UsernameBuf[HOST_NAME_MAX + 1];
     
     
         std::lock_guard<std::recursive_mutex> guard(context->__system_m);
-        if(!gethostname(HostnameBuf, sizeof(HostnameBuf))) {
-            METHAN_THROW_EXCEPTION("The call to `gethostname` failed for unkown reason. ErrCode : " + METHAN_LAST_ERROR, ExceptionType::Unknown);
+        if(!getlogin_r(UsernameBuf, sizeof(UsernameBuf) - 1)) {
+            METHAN_THROW_EXCEPTION("The call to `getlogin_r` failed for unkown reason. ErrCode : " + METHAN_LAST_ERROR, ExceptionType::Unknown);
         }
 
-        if(!getlogin_r(UsernameBuf, sizeof(UsernameBuf))) {
-            METHAN_THROW_EXCEPTION("The call to `getlogin_r` failed for unkown reason. ErrCode : " + METHAN_LAST_ERROR, ExceptionType::Unknown);
+        if(!gethostname(HostnameBuf, sizeof(HostnameBuf) - 1)) {
+            METHAN_THROW_EXCEPTION("The call to `gethostname` failed for unkown reason. ErrCode : " + METHAN_LAST_ERROR, ExceptionType::Unknown);
         }
 
         hostname = std::string(HostnameBuf);
