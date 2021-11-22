@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <methan/core/context.hpp>
 #include <methan/private/private_context.hpp>
+#include <methan/private/net/socket.hpp>
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/stdout_sinks.h>
@@ -54,6 +55,7 @@ METHAN_API Methan::Context Methan::ContextBuilder::build()
 
     // Create the async logger
     Context context = new __private__::__Context();
+    context->cflag = 0x0;
     context->logger_thread_pool = std::make_shared<spdlog::details::thread_pool>(4096, 1);
     context->logger = std::make_shared<spdlog::async_logger>("console", sinks.begin(), sinks.end(), context->logger_thread_pool, spdlog::async_overflow_policy::block);
     context->logger->set_pattern("[%Y-%d-%m %X.%e%z] [%l] [tid=%t] (%s:%#) %v ", spdlog::pattern_time_type::local);
@@ -61,12 +63,23 @@ METHAN_API Methan::Context Methan::ContextBuilder::build()
 
     // Log the context creation
     METHAN_LOG_INFO(context->logger, "Initialisation of the context object at {}", spdlog::fmt_lib::ptr(context));
+    context->cflag |= METHAN_COMPONENT_LOGGER;
+
 
     return context;
 }
 
 METHAN_API void Methan::free(Methan::Context context)
 {
+    {
+        std::lock_guard guard(context->__init_m);
+
+        if(context->cflag & METHAN_COMPONENT_NETWORK)
+        {
+            clean_network(context);
+        }
+    }
+
     METHAN_LOG_INFO(context->logger, "Cleaning and deleting the context object at {}", spdlog::fmt_lib::ptr(context));
     delete context;
 }

@@ -33,6 +33,8 @@ METHAN_API std::string Methan::to_string(ExceptionType type)
         return "BadCastException";
     case ExceptionType::HashCollision:
         return "HashCollision";
+    case ExceptionType::NotEnoughMemory:
+        return "NotEnoughMemory";
     default:
         return "Unknown";
     }

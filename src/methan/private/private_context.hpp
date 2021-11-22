@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <mutex>
+#include <atomic>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
@@ -19,6 +20,9 @@
 #define METHAN_LOG_WARNING(logger, ...)                                                METHAN_LOG(logger, spdlog::level::warn, __VA_ARGS__)
 #define METHAN_LOG_INFO(logger, ...)                                                   METHAN_LOG(logger, spdlog::level::info, __VA_ARGS__)
 
+#define METHAN_COMPONENT_LOGGER              (1 << 0)
+#define METHAN_COMPONENT_NETWORK             (1 << 1)
+
 namespace Methan::__private__ {
 
     struct __Context
@@ -30,6 +34,14 @@ namespace Methan::__private__ {
         Methan::UuidFactory uuid_factory;
 
         std::recursive_mutex __system_m;
+        
+        std::recursive_mutex __init_m;
+        uint32_t cflag; // Flag of all component that as been initialized
+
+
+#if defined(METHAN_OS_UNIX_LIKE)
+        std::mutex __dns_requests_m;
+#endif
 
     };
 
