@@ -18,6 +18,6 @@ namespace Methan {
     METHAN_API void init_network(Context context);
     METHAN_API void clean_network(Context context);
 
-    METHAN_API tl::expected<ResolvedHost, EDNSQueryErrorType> queryDNS(Context context, DomainName domainName, IpType preferred);
+    METHAN_API tl::expected<ResolvedHost, EDNSQueryErrorType> queryDNS(Context context, DomainName domainName, IpType preferred);    
 
 }

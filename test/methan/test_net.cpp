@@ -12,7 +12,12 @@ TEST_CASE("QueryDNS work as expected", "[net]") {
 
     tl::expected<Methan::ResolvedHost, Methan::EDNSQueryErrorType> output = Methan::queryDNS(context, "www.google.fr", Methan::IpType::Ipv4);
     REQUIRE(output.has_value());
-    
+
+    // If that website exists is just to make me mad...
+    output = Methan::queryDNS(context, "www.aeffezaf.azrgeth.com", Methan::IpType::Ipv4);
+    REQUIRE(!output.has_value());
+    REQUIRE(output.error() == Methan::EDNSQueryErrorType::HostNotFound);
+
     Methan::free(context);
 }
 
