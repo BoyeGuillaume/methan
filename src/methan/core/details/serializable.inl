@@ -74,15 +74,15 @@ namespace Methan::__private__ {
     {
         inline void deserialize(std::istream& input, E& _enum)
         {
-            std::underlying_type<E>::type e;
-            Methan::Serde::deserialize<std::underlying_type<E>::type>(input, e);
+            typename std::underlying_type<E>::type e;
+            Methan::Serde::deserialize<typename std::underlying_type<E>::type>(input, e);
             _enum = static_cast<E>(e);
         }
 
         inline void serialize(std::ostream& output, const E& _enum)
         {
-            std::underlying_type<E>::type e = static_cast<std::underlying_type<E>::type>(_enum);
-            Methan::Serde::serialize<std::underlying_type<E>::type>(output, e);
+            typename std::underlying_type<E>::type e = static_cast<typename std::underlying_type<E>::type>(_enum);
+            Methan::Serde::serialize<typename std::underlying_type<E>::type>(output, e);
         }
     };
 
