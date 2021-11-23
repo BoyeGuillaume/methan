@@ -22,4 +22,6 @@ namespace Methan {
     typedef std::variant<IpV4, IpV6> ResolvedHost;
     typedef std::variant<IpV4, IpV6, DomainName> Host;
 
+    METHAN_API std::string to_string(const ResolvedHost& host);
+
 }

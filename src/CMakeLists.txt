@@ -44,7 +44,7 @@ set(METHAN_INTERNAL_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE
 
 # Configuring the build
 message(STATUS "Configuration of the build............................")
-target_include_directories(Methan PRIVATE "${METHAN_INTERNAL_INCLUDE_DIRECTORY}")
+target_include_directories(Methan PRIVATE "${METHAN_INTERNAL_INCLUDE_DIRECTORY}" "${METHAN_THIRD_PARTY_FOLDER}/Brynet/include/")
 target_compile_definitions(Methan PRIVATE "METHAN_EXPORT")
 
 # Configuring the library

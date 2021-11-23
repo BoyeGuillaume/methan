@@ -3,9 +3,17 @@
 #include <methan/core/details/platform.hpp>
 #include <methan/utility/assertion.hpp>
 #include <methan/private/private_constant.hpp>
+#include <methan/private/private_visit_variant_helper.hpp>
+#include <methan/private/private_formatter.hpp>
 #include <mutex>
 #include <variant>
 #include <stdlib.h>
+
+// https://github.com/microsoft/Windows-classic-samples/tree/main/Samples/Win7Samples/netds/winsock
+
+#define METHAN_SOCKET_FLAG_ALIVE               1
+#define METHAN_SOCKET_FLAG_CONNECT             2
+
 
 #if defined(METHAN_OS_WINDOWS)
 #define WIN32_LEAN_AND_MEAN
@@ -23,6 +31,32 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #endif
+
+METHAN_API std::string Methan::to_string(const ResolvedHost& host)
+{
+    std::string output;
+    std::visit(overloaded {
+        [&output](const IpV4& ipv4)
+        {
+            for(size_t i = 0; i < 4; ++i)
+            {
+                output += std::to_string((int) ipv4[i]);
+                if(i != 3) output += ".";
+            }
+        },
+        [&output](const IpV6& ipv6)
+        {
+            static constexpr const char* hex_digit = "0123456789abcdef";
+            for(size_t i = 0; i < 16; ++i)
+            {
+                output += hex_digit[ipv6[i] & 0xF];
+                output += hex_digit[(ipv6[i] >> 4) & 0xF];
+                if(i != 15) output += ":";   
+            }
+        }
+    }, host);
+    return output;
+}
 
 METHAN_API void Methan::init_network(Context context)
 {
@@ -237,4 +271,277 @@ METHAN_API tl::expected<Methan::ResolvedHost, Methan::EDNSQueryErrorType>
     }
 
     return result;
+}
+
+METHAN_API Methan::Socket::Socket(Context context, ETransportLayerType transportType, IpType family)
+: Contextuable(context),
+  m_transportType(transportType),
+  m_family(family),
+  m_socket(nullptr),
+  m_flag(0x0)
+{
+    METHAN_ASSERT_NON_NULL(context);
+    
+    {
+        std::lock_guard guard(context->__init_m);
+        if((context->cflag & METHAN_COMPONENT_NETWORK) == 0)
+        {
+            METHAN_LOG_ERROR(context->logger, "Socket::Socket() failed as the network component was not initialized (or already dispose of)");
+            METHAN_THROW_EXCEPTION("Methan::Context() failure due to non-initialized component network", Methan::ExceptionType::IllegalState);
+        }
+    }
+
+#ifdef METHAN_OS_WINDOWS
+    SOCKET socket = INVALID_SOCKET;
+
+    int af = AF_UNSPEC;
+    if(m_family == IpType::Ipv6) af = AF_INET6;
+    else if(m_family == IpType::Ipv4) af = AF_INET;
+
+    int proto = 0;
+    int type = 0;
+    
+    if(m_transportType == ETransportLayerType::Tcp) 
+    {
+        proto = IPPROTO_TCP;
+        type = SOCK_STREAM;
+    }
+    else if(m_transportType == ETransportLayerType::Udp)
+    {
+        proto = IPPROTO_UDP;
+        type = SOCK_DGRAM;
+    }
+
+    socket = WSASocketW(af, type, proto, NULL, 0, 0); // WSA_FLAG_OVERLAPPED
+    if(socket == INVALID_SOCKET)
+    {
+        int err = WSAGetLastError();
+        if(err == WSAENETDOWN)
+        {
+            METHAN_LOG_ERROR(context->logger, "Socket::Socket() failed as a network subsystem as failed (internal windows error)");
+        }
+        else if(err == WSAESOCKTNOSUPPORT)
+        {
+            METHAN_LOG_ERROR(context->logger, "Socket::Socket() failed as the specified family ain't supported.");
+        }
+        else
+        {
+            METHAN_LOG_ERROR(context->logger, "Socket::Socket(), WsaGetLastError() return ErrCode: {}", err);
+        }
+
+        METHAN_THROW_EXCEPTION("Socket::Socket() failed with ErrCode: " + std::to_string(err), Methan::ExceptionType::Unknown);
+    }
+
+    m_socket = socket;
+    m_flag |= METHAN_SOCKET_FLAG_ALIVE;
+#endif
+}
+
+METHAN_API Methan::Socket::~Socket()
+{
+    if(m_flag & METHAN_SOCKET_FLAG_ALIVE)
+    {
+        __closesocket();
+    }
+}
+
+METHAN_API void Methan::Socket::__closesocket()
+{
+#ifdef METHAN_OS_WINDOWS
+    SOCKET socket = m_socket.get<SOCKET>();
+    if(closesocket(socket) == SOCKET_ERROR)
+    {
+        int err = WSAGetLastError();
+        if(err == WSAEINPROGRESS)
+        {
+            METHAN_LOG_ERROR(context()->logger, "Socket::__closesocket() failed to call `closesocket()` as a blocking windows socket is in progress / or still processing callback function", err);
+        }
+        else 
+        {
+            METHAN_LOG_ERROR(context()->logger, "Socket::__closesocket() failed to call `closesocket()` on the socket with error : {}", err);
+        }
+    }
+    m_socket = nullptr;
+    m_flag &= ~METHAN_SOCKET_FLAG_ALIVE;
+#endif
+}
+
+METHAN_API Methan::ESocketErrorType Methan::Socket::connect(ResolvedHost host, uint16_t port)
+{
+    if((m_flag & METHAN_SOCKET_FLAG_ALIVE) == 0x0)
+    {
+        METHAN_LOG_ERROR(context()->logger, "Socket::connect failed as the socket was not correctly initiazed or has already been disposed of.");
+        METHAN_INVALID_STATE;
+    }
+
+#ifdef METHAN_DEBUG
+    if(m_flag & METHAN_SOCKET_FLAG_CONNECT)
+    {
+        METHAN_LOG_WARNING(context()->logger, "Socket::connect was called on already connected socket");
+        return ESocketErrorType::Ok;
+    }
+
+    if(m_transportType == ETransportLayerType::Udp)
+    {
+        METHAN_LOG_ERROR(context()->logger, "Socket::connect failed as an illegal attempt of connecting an UDP-socket to an target has been made");
+        METHAN_INVALID_STATE;
+    }
+#endif
+
+#ifdef METHAN_OS_WINDOWS
+    struct sockaddr * addr;
+    std::visit(overloaded {
+        [port, &addr](const IpV4& ipv4)
+        { // Setup the socket with AF_INET
+            struct sockaddr_in * _addr = (sockaddr_in*) malloc(sizeof(sockaddr_in));
+            ZeroMemory(_addr, sizeof(sockaddr_in));
+            memcpy(&_addr->sin_addr.s_addr, ipv4.data(), ipv4.size());
+            _addr->sin_family = AF_INET;
+            _addr->sin_port = htons(port);
+            addr = (sockaddr*) _addr;
+        },
+        [port, &addr](const IpV6& ipv6)
+        { // Setup the socket with AF_INET6
+            struct sockaddr_in6 * _addr = (sockaddr_in6*) malloc(sizeof(sockaddr_in6));
+            ZeroMemory(_addr, sizeof(sockaddr_in6));
+            memcpy(_addr->sin6_addr.u.Byte, ipv6.data(), ipv6.size());
+            _addr->sin6_family = AF_INET6;
+            _addr->sin6_port = htons(port);
+            addr = (sockaddr*) _addr;
+        }
+    }, host);
+
+    int result = ::connect(m_socket.get<SOCKET>(), addr, 0);
+    ::free(addr);
+
+    if(result != 0)
+    {
+        int err = WSAGetLastError();
+        if(err == WSAEADDRINUSE)
+        {
+            METHAN_LOG_ERROR(context()->logger, "Socket::connect({}) failed with error \"The socket's local address is already in use and the socket was not marked to allow address reuse with SO_REUSEADDR.\"", host);
+            return ESocketErrorType::SocketAlreadyConnected;
+        }
+        else if(err == WSAEALREADY)
+        {
+            METHAN_LOG_ERROR(context()->logger, "Socket::connect({}) failed with error \"A nonblocking connect call is in progress on the specified socket.\"", host);
+        }
+        else if(err == WSAEADDRNOTAVAIL)
+        {
+            METHAN_LOG_ERROR(context()->logger, "Socket::connect({}) failed with error \"The remote address is not a valid address (such as INADDR_ANY or in6addr_any).\"", host);
+            return ESocketErrorType::NotReachable;
+        }
+        else if(err == WSAECONNREFUSED)
+        {
+            METHAN_LOG_WARNING(context()->logger, "Socket::connect({}) failed as the connection was refused");
+            return ESocketErrorType::ConnectionAborted;
+        }
+        else if(err == WSAECONNREFUSED)
+        {
+            METHAN_LOG_ERROR(context()->logger, "Socket::connect({}) failed with error \"The attempt to connect was forcefully rejected.\"", host);
+        }
+        else if(err == WSAENETUNREACH)
+        {
+            METHAN_LOG_ERROR(context()->logger, "Socket::connect({}) failed with error \"The network cannot be reached from this host at this time.\"", host);
+            return ESocketErrorType::NotReachable;
+        }
+        else
+        {
+            METHAN_LOG_ERROR(context()->logger, "Socket::connect({}) failed with ErrCode {}", host, WSAGetLastError());
+        }
+    }
+    m_flag |= METHAN_SOCKET_FLAG_CONNECT;
+    return ESocketErrorType::Ok;
+#endif
+}
+
+METHAN_API Methan::ESocketErrorType Methan::Socket::send(std::string& data)
+{
+    if(m_socket.is_empty())
+    {
+        METHAN_LOG_ERROR(context()->logger, "Socket::connect failed as the socket was not correctly initiazed or has already been disposed of.");
+        METHAN_INVALID_STATE;
+    }
+
+    if((m_flag & METHAN_SOCKET_FLAG_CONNECT) == 0)
+    {
+        METHAN_LOG_ERROR(context()->logger, "Socket::connect failed as the socket was not connected to any host");
+        METHAN_INVALID_STATE;
+    }
+
+#ifdef METHAN_OS_WINDOWS
+    DWORD size_write = 0;
+    WSABUF lpbuffer;
+    lpbuffer.buf = data.data();
+    lpbuffer.len = (ULONG) data.size();
+    int r = WSASend(m_socket.get<SOCKET>(), &lpbuffer, 1, &size_write, 0, NULL, NULL);
+    if(r != 0)
+    {
+        int err = WSAGetLastError();
+        METHAN_LOG_ERROR(context()->logger, "Socket::send failed with ErrCode: {}", err);
+        if(err == WSAECONNABORTED || err == WSAECONNRESET)
+        {
+            return ESocketErrorType::ConnectionAborted;
+        }
+
+        METHAN_INVALID_STATE;
+    }
+    return ESocketErrorType::Ok;
+#endif
+}
+
+METHAN_API Methan::ESocketErrorType Methan::Socket::receive(std::string* buffer)
+{
+    if(m_socket.is_empty())
+    {
+        METHAN_LOG_ERROR(context()->logger, "Socket::receive failed as the socket was not correctly initiazed or has already been disposed of.");
+        METHAN_INVALID_STATE;
+    }
+
+    if((m_flag & METHAN_SOCKET_FLAG_CONNECT) == 0)
+    {
+        METHAN_LOG_ERROR(context()->logger, "Socket::receive failed as the socket was not connected to any host");
+        METHAN_INVALID_STATE;
+    }
+
+#ifdef METHAN_OS_WINDOWS
+    WSABUF lpbuffer;
+    lpbuffer.buf = (CHAR*) m_buffer.data();
+    lpbuffer.len = (ULONG) m_buffer.size();
+    DWORD lpNumberOfBytesRecvd;
+    DWORD flag = 0;
+    if(WSARecv(m_socket.get<SOCKET>(), &lpbuffer, 1, &lpNumberOfBytesRecvd, &flag, NULL, NULL) != 0)
+    {
+        int err = WSAGetLastError();
+        METHAN_LOG_ERROR(context()->logger, "Socket::receive failed with ErrCode: {}", err);
+        if(err == WSAECONNABORTED || err == WSAECONNRESET)
+        {
+            return ESocketErrorType::ConnectionAborted;
+        }
+
+        METHAN_INVALID_STATE;
+    }
+
+    buffer->append((const char*) m_buffer.data(), (size_t) lpNumberOfBytesRecvd);
+    return ESocketErrorType::Ok;
+#endif
+}
+
+METHAN_API Methan::ESocketErrorType Methan::Socket::bind(uint16_t port)
+{
+    if(m_socket.is_empty())
+    {
+        METHAN_LOG_ERROR(context()->logger, "Socket::bind failed as the socket was not correctly initiazed or has already been disposed of.");
+        METHAN_INVALID_STATE;
+    }
+
+    if(m_flag & METHAN_SOCKET_FLAG_CONNECT)
+    {
+        METHAN_LOG_ERROR(context()->logger, "Socket::bind failed as the socket was already connected to some hosts");
+        METHAN_INVALID_STATE;
+    }
+
+#ifdef METHAN_OS_WINDOWS
+    
+#endif
 }
