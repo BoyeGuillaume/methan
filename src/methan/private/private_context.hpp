@@ -21,7 +21,6 @@
 #define METHAN_LOG_INFO(logger, ...)                                                   METHAN_LOG(logger, spdlog::level::info, __VA_ARGS__)
 
 #define METHAN_COMPONENT_LOGGER              (1 << 0)
-#define METHAN_COMPONENT_NETWORK             (1 << 1)
 
 namespace Methan::__private__ {
 
@@ -37,12 +36,6 @@ namespace Methan::__private__ {
         
         std::recursive_mutex __init_m;
         uint32_t cflag; // Flag of all component that as been initialized
-
-
-#if defined(METHAN_OS_UNIX_LIKE)
-        std::mutex __dns_requests_m;
-#endif
-
     };
 
     /**

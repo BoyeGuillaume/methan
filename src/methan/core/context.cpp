@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <methan/core/context.hpp>
 #include <methan/private/private_context.hpp>
-#include <methan/private/net/socket.hpp>
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/stdout_sinks.h>
@@ -71,15 +70,6 @@ METHAN_API Methan::Context Methan::ContextBuilder::build()
 
 METHAN_API void Methan::free(Methan::Context context)
 {
-    {
-        std::lock_guard guard(context->__init_m);
-
-        if(context->cflag & METHAN_COMPONENT_NETWORK)
-        {
-            clean_network(context);
-        }
-    }
-
     METHAN_LOG_INFO(context->logger, "Cleaning and deleting the context object at {}", spdlog::fmt_lib::ptr(context));
     delete context;
 }
