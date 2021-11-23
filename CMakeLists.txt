@@ -60,8 +60,11 @@ if(${METHAN_BUILD_SHARED})
     list(APPEND METHAN_INTERNAL_SHARED_LIST ${_METHAN_DYNAMIC_LIB_NAME})
 endif()
 add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/spdlog")
-add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/sockpp")
 set_target_properties(spdlog PROPERTIES DEBUG_POSTFIX "") # A little hacky solution has everyone loves
+
+set(SOCKPP_BUILD_STATIC ON CACHE BOOL "" FORCE)
+set(SOCKPP_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/sockpp")
 
 # Adding source subdirectory
 add_subdirectory(src)

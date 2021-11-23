@@ -26,7 +26,7 @@
 
 namespace Methan::__private__ {
 
-    template<typename T>
+    template<typename T, typename Enabler = void>
     struct __serde
     {
         constexpr __serde() {}

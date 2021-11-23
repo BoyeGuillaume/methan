@@ -1,6 +1,6 @@
 #pragma once
 #include <methan/core/serializable.hpp>
-
+#include <type_traits>
 
 namespace Methan::__private__ {
 
@@ -66,6 +66,23 @@ namespace Methan::__private__ {
             uint32_t _size = (uint32_t) _vector.size();
             __serde<uint32_t>().serialize(output, _size);
             for (size_t i = 0; i < _size; ++i) __serde<T>().serialize(output, _vector[i]);
+        }
+    };
+
+    template<typename E>
+    struct __serde<E, std::enable_if_t<std::is_enum<E>::value>>
+    {
+        inline void deserialize(std::istream& input, E& _enum)
+        {
+            std::underlying_type<E>::type e;
+            Methan::Serde::deserialize<std::underlying_type<E>::type>(input, e);
+            _enum = static_cast<E>(e);
+        }
+
+        inline void serialize(std::ostream& output, const E& _enum)
+        {
+            std::underlying_type<E>::type e = static_cast<std::underlying_type<E>::type>(_enum);
+            Methan::Serde::serialize<std::underlying_type<E>::type>(output, e);
         }
     };
 
