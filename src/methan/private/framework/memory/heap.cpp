@@ -32,7 +32,7 @@ METHAN_API Methan::Heap::Heap(Context context, uint64_t maxMemoryUsage)
     long pages = sysconf(_SC_AVPHYS_PAGES);
 #elif defined(METHAN_OS_MACOS)
     #warning "heap.cpp: As MacOS do not support _SC_AVPHYS_PAGES we heap maximum memory describe in the MemoryDescriptor is the maximum amount of memory."
-    long pages = sysconf(_SC_PHYS_PAGES)
+    long pages = sysconf(_SC_PHYS_PAGES);
 #endif
     m_memoryDescriptor.maxUsage = (uint64_t) pages * (uint64_t) page_size;
 #endif
