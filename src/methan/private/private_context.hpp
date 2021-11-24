@@ -12,6 +12,7 @@
 #include <methan/core/except.hpp>
 #include <methan/core/context.hpp>
 #include <methan/utility/uuid.hpp>
+#include <methan/private/framework/framework.hpp>
 
 #define METHAN_LOG(logger, level, ...)                                                 logger->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, level, __VA_ARGS__)
 #define METHAN_LOG_DEBUG(logger, ...)                                                  METHAN_LOG(logger, spdlog::level::debug, __VA_ARGS__)
@@ -22,10 +23,6 @@
 #define METHAN_LOG_INFO(logger, ...)                                                   METHAN_LOG(logger, spdlog::level::info, __VA_ARGS__)
 
 #define METHAN_COMPONENT_LOGGER              (1 << 0)
-    
-namespace Methan {
-    class AbstractDevice;
-}
 
 namespace Methan::__private__ {
 
@@ -43,6 +40,7 @@ namespace Methan::__private__ {
         uint32_t cflag; // Flag of all component that as been initialized
 
         std::vector<AbstractDevice*> devices;
+        std::vector<AbstractMemory*> memories;
     };
 
     /**

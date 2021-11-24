@@ -76,9 +76,19 @@ namespace Methan {
          * be used to build and manage the computation which can take quite a place.
          * 
          * @param availableCore The maximum number of cores that the computation may use in parrallel
-         * @return METHAN_API& reference to the current ContextBuilder object
+         * @return ContextBuilder& reference to the current object
          */
         METHAN_API ContextBuilder& register_cpu_as_candidate(uint8_t availableCore = 255);
+
+        /**
+         * @brief Set the upper limits of the heap memory used by this framework. Notice that this is
+         * not in any case a guarantee that the framework ain't gonna. Indeed only memory allocated
+         * for actual computation is accounted here. (By default maximum is the maximum amount of physical memory in the system)
+         * 
+         * @param heapMemoryLimits The upper limits of the memory consume by the network
+         * @return ContextBuilder& a reference to the current object
+         */
+        METHAN_API ContextBuilder& set_heap_memory_limits(uint64_t heapMemoryLimits);
 
         /**
          * @brief Construct the Context object based on the current configuration. May result in an error if the given configuration isn't complete
@@ -91,6 +101,7 @@ namespace Methan {
 
     private:
         uint8_t m_cpuCore;
+        uint64_t m_heapMemoryLimits;
         std::vector<Methan::Varient> m_sinks;
     };
 

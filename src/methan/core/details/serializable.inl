@@ -1,5 +1,6 @@
 #pragma once
 #include <methan/core/serializable.hpp>
+#include <methan/utility/enum.hpp>
 #include <type_traits>
 
 namespace Methan::__private__ {
@@ -83,6 +84,24 @@ namespace Methan::__private__ {
         {
             typename std::underlying_type<E>::type e = static_cast<typename std::underlying_type<E>::type>(_enum);
             Methan::Serde::serialize<typename std::underlying_type<E>::type>(output, e);
+        }
+    };
+
+
+    template<typename E>
+    struct __serde<EnumFlag<E>>
+    {
+        inline void deserialize(std::istream& input, EnumFlag<E>& _enum)
+        {
+            EnumFlag<E>::UnderlyingType e;
+            Methan::Serde::deserialize<EnumFlag<E>::UnderlyingType>(input, e);
+            _enum = EnumFlag<E>(static_cast<E>(e)); // A bit hacky but hey...
+        }
+
+        inline void serialize(std::ostream& output, const EnumFlag<E>& _enum)
+        {
+            EnumFlag<E>::UnderlyingType e = static_cast<EnumFlag<E>::UnderlyingType>(_enum);
+            Methan::Serde::serialize<EnumFlag<E>::UnderlyingType>(output, e);
         }
     };
 

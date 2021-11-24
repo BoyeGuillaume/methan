@@ -1,17 +1,21 @@
+#include <limits>
 #include <memory>
 #include <algorithm>
-#include <methan/core/context.hpp>
-#include <methan/private/private_context.hpp>
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 
+#include <methan/core/context.hpp>
+#include <methan/private/private_context.hpp>
 #include <methan/private/framework/cpu.hpp>
+#include <methan/private/framework/memory/heap.hpp>
+
 
 METHAN_API Methan::ContextBuilder::ContextBuilder()
-: m_cpuCore(0)
+: m_cpuCore(0),
+  m_heapMemoryLimits(std::numeric_limits<uint64_t>::max())
 {
     
 }
@@ -53,6 +57,12 @@ METHAN_API Methan::ContextBuilder& Methan::ContextBuilder::register_cpu_as_candi
     return *this;
 }
 
+METHAN_API Methan::ContextBuilder& Methan::ContextBuilder::set_heap_memory_limits(uint64_t heapMemoryLimits)
+{
+    m_heapMemoryLimits = heapMemoryLimits;
+    return *this;
+}
+
 METHAN_API Methan::Context Methan::ContextBuilder::build()
 {
     // Retrieve a list of all the sinks composing the logger
@@ -74,10 +84,10 @@ METHAN_API Methan::Context Methan::ContextBuilder::build()
     context->cflag |= METHAN_COMPONENT_LOGGER;
 
     // register CPU if require
-    if(m_cpuCore != 0)
-    {
-        new Cpu(context, m_cpuCore);
-    }
+    if(m_cpuCore != 0) new Cpu(context, m_cpuCore);
+
+    // Register the Heap
+    new Heap(context, m_heapMemoryLimits);
 
     return context;
 }

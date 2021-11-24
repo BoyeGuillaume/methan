@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <methan/core/except.hpp>
 #include <methan/utility/uuid.hpp>
 #include <methan/core/contextuable.hpp>
@@ -13,13 +15,6 @@ namespace Methan {
         DiscreteGpu
     };
 
-    enum class EMemoryType {
-        CpuHeap,
-        GpuShared,
-        GpuOnly,
-        Swap
-    };
-
     struct DeviceDescriptor
     {
         Uuid uuid;
@@ -30,17 +25,6 @@ namespace Methan {
         float freq;   // MHz
 
         METHAN_SERDE_GENERATOR(DeviceDescriptor, uuid, deviceType, core, floops, freq);
-    };
-
-    struct MemoryDescriptor
-    {
-        Uuid uuid;
-        EMemoryType memoryType;
-        uint8_t alignement; // If alignement (> 256) ...
-        uint64_t maxAllocationSize;
-        uint64_t maxAllocationCount;
-
-        METHAN_SERDE_GENERATOR(MemoryDescriptor, uuid, memoryType, alignement, maxAllocationSize, maxAllocationCount);
     };
 
     class AbstractDevice : public Contextuable
@@ -63,13 +47,19 @@ namespace Methan {
             return m_name;
         }
 
-        inline const Uuid& uuid()
+        inline const Uuid& uuid() const
         {
             return m_descriptor.uuid;
         }
 
+        inline const std::vector<Uuid>& memories() const
+        {
+            return m_memories;
+        }
+
     protected:
         DeviceDescriptor m_descriptor;
+        std::vector<Uuid> m_memories; // List of all the memory that this device can access
 
     private:
         std::string m_name;

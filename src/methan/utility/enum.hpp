@@ -53,7 +53,6 @@
     }
 
 
-
 namespace Methan {
 
     template<class T, typename std::underlying_type<T>::type fullValue = typename std::underlying_type<T>::type(~0)>
@@ -129,5 +128,10 @@ namespace Methan {
         constexpr explicit EnumFlag(UnderlyingType type) noexcept : m_value{type} {}
         UnderlyingType m_value;
     };
+    
+    template<typename>
+    struct is_enum_flag : std::false_type {};
 
+    template<typename E>
+    struct is_enum_flag<EnumFlag<E>> : std::true_type {};
 }

@@ -13,5 +13,5 @@ namespace Methan {
         METHAN_API Cpu(Context context, uint8_t maxCoreUsed);
         METHAN_API ~Cpu();
     };
-    
+
 }
