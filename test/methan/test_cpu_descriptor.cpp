@@ -9,11 +9,11 @@ TEST_CASE("CPU correctly registered", "[cpu]")
 {
     Methan::Context context = Methan::ContextBuilder()
         .add_logger_stdout(Methan::ELogLevel::Debug)
+        .register_cpu_as_candidate()
         .build();
 
-    Methan::DeviceDescriptor* descriptor = Methan::cpu_descriptor(context);
-    REQUIRE(descriptor->deviceType == Methan::EDeviceType::Cpu);
-    delete descriptor;
+    REQUIRE(context->devices.size() == 1);
+    REQUIRE(context->devices[0]->descriptor().deviceType == Methan::EDeviceType::Cpu);
 
     Methan::free(context);
 }

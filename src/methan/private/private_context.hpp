@@ -24,7 +24,7 @@
 #define METHAN_COMPONENT_LOGGER              (1 << 0)
     
 namespace Methan {
-    class Device;
+    class AbstractDevice;
 }
 
 namespace Methan::__private__ {
@@ -42,7 +42,7 @@ namespace Methan::__private__ {
         std::recursive_mutex __init_m;
         uint32_t cflag; // Flag of all component that as been initialized
 
-        std::vector<Device*> devices;
+        std::vector<AbstractDevice*> devices;
     };
 
     /**

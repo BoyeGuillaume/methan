@@ -5,6 +5,13 @@
 
 namespace Methan {
 
-    METHAN_API DeviceDescriptor* cpu_descriptor(Context context);
+    class Cpu : public AbstractDevice
+    {
+        METHAN_DISABLE_COPY_MOVE(Cpu);
+    
+    public:
+        METHAN_API Cpu(Context context, uint8_t maxCoreUsed);
+        METHAN_API ~Cpu();
+    };
     
 }

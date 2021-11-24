@@ -71,6 +71,16 @@ namespace Methan {
         METHAN_API ContextBuilder& add_logger_rotating_file(const std::string& filename, ELogLevel level, DataSize maxSize = 4_KB, size_t maxFiles = 3);
 
         /**
+         * @brief Register the cpu as candidate for computation. This will enables the framework
+         * to use the cpu to perform computation. Notice that even if this isn't call the cpu will 
+         * be used to build and manage the computation which can take quite a place.
+         * 
+         * @param availableCore The maximum number of cores that the computation may use in parrallel
+         * @return METHAN_API& reference to the current ContextBuilder object
+         */
+        METHAN_API ContextBuilder& register_cpu_as_candidate(uint8_t availableCore = 255);
+
+        /**
          * @brief Construct the Context object based on the current configuration. May result in an error if the given configuration isn't complete
          * or is invalid.
          * @throw Methan::Exception If the configuration for creating the context is invalid
@@ -80,6 +90,7 @@ namespace Methan {
         METHAN_API Context build();
 
     private:
+        uint8_t m_cpuCore;
         std::vector<Methan::Varient> m_sinks;
     };
 

@@ -7,25 +7,19 @@
 #include <chrono>
 
 
-#ifdef METHAN_OS_WINDOWS
-#include <Windows.h>
-#endif
-
-METHAN_API Methan::DeviceDescriptor* Methan::cpu_descriptor(Context context)
+METHAN_API Methan::Cpu::Cpu(Context context, uint8_t maxCoreUsed)
+: AbstractDevice(context, "cpu")
 {
-    Methan::DeviceDescriptor* deviceDescriptor = new Methan::DeviceDescriptor{};
-    deviceDescriptor->deviceType = Methan::EDeviceType::Cpu;
-    deviceDescriptor->uuid = generate_uuid(context);
+    m_descriptor.core = std::thread::hardware_concurrency();
+    if(m_descriptor.core > (uint32_t) maxCoreUsed)
+        m_descriptor.core = (uint32_t) maxCoreUsed;
 
-#ifdef METHAN_OS_WINDOWS
-    SYSTEM_INFO sysinfo;
-    GetSystemInfo(&sysinfo);
-    deviceDescriptor->core = sysinfo.dwNumberOfProcessors;
-#endif
-    deviceDescriptor->freq = 0.f;
-    deviceDescriptor->floops = 0.f;
-    
-    METHAN_LOG_INFO(context->logger, "Registing new DeviceDescriptor for the cpu with uuid {}", deviceDescriptor->uuid);
+    m_descriptor.deviceType = Methan::EDeviceType::Cpu;
+    m_descriptor.floops = 0.f;
+    m_descriptor.freq = 0.f;
+}
 
-    return deviceDescriptor;
+METHAN_API Methan::Cpu::~Cpu()
+{
+
 }

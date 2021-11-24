@@ -8,7 +8,10 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 
+#include <methan/private/framework/cpu.hpp>
+
 METHAN_API Methan::ContextBuilder::ContextBuilder()
+: m_cpuCore(0)
 {
     
 }
@@ -44,6 +47,12 @@ METHAN_API Methan::ContextBuilder& Methan::ContextBuilder::add_logger_rotating_f
     return *this;
 }
 
+METHAN_API Methan::ContextBuilder& Methan::ContextBuilder::register_cpu_as_candidate(uint8_t availableCpuCore)
+{
+    m_cpuCore = availableCpuCore;
+    return *this;
+}
+
 METHAN_API Methan::Context Methan::ContextBuilder::build()
 {
     // Retrieve a list of all the sinks composing the logger
@@ -64,12 +73,22 @@ METHAN_API Methan::Context Methan::ContextBuilder::build()
     METHAN_LOG_INFO(context->logger, "Initialisation of the context object at {}", spdlog::fmt_lib::ptr(context));
     context->cflag |= METHAN_COMPONENT_LOGGER;
 
+    // register CPU if require
+    if(m_cpuCore != 0)
+    {
+        new Cpu(context, m_cpuCore);
+    }
 
     return context;
 }
 
 METHAN_API void Methan::free(Methan::Context context)
 {
+    for(int i = (int) context->devices.size() - 1; i >= 0; --i)
+    {
+        delete context->devices[i];
+    }
+
     METHAN_LOG_INFO(context->logger, "Cleaning and deleting the context object at {}", spdlog::fmt_lib::ptr(context));
     delete context;
 }

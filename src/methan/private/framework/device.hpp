@@ -43,14 +43,15 @@ namespace Methan {
         METHAN_SERDE_GENERATOR(MemoryDescriptor, uuid, memoryType, alignement, maxAllocationSize, maxAllocationCount);
     };
 
-
-    class Device : public Contextuable
+    class AbstractDevice : public Contextuable
     {
-        METHAN_DISABLE_COPY_MOVE(Device);
+        METHAN_DISABLE_COPY_MOVE(AbstractDevice);
+
+    protected:
+        METHAN_API AbstractDevice(Context context, std::string name);
 
     public:
-        METHAN_API Device(Context context, DeviceDescriptor decriptor, std::string name);
-        METHAN_API ~Device();
+        METHAN_API virtual ~AbstractDevice();
 
         inline const DeviceDescriptor& descriptor() const
         {
@@ -62,8 +63,15 @@ namespace Methan {
             return m_name;
         }
 
-    private:
+        inline const Uuid& uuid()
+        {
+            return m_descriptor.uuid;
+        }
+
+    protected:
         DeviceDescriptor m_descriptor;
+
+    private:
         std::string m_name;
     };
 
