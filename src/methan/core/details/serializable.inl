@@ -93,15 +93,15 @@ namespace Methan::__private__ {
     {
         inline void deserialize(std::istream& input, EnumFlag<E>& _enum)
         {
-            EnumFlag<E>::UnderlyingType e;
-            Methan::Serde::deserialize<EnumFlag<E>::UnderlyingType>(input, e);
+            typename EnumFlag<E>::UnderlyingType e;
+            Methan::Serde::deserialize<typename EnumFlag<E>::UnderlyingType>(input, e);
             _enum = EnumFlag<E>(static_cast<E>(e)); // A bit hacky but hey...
         }
 
         inline void serialize(std::ostream& output, const EnumFlag<E>& _enum)
         {
-            EnumFlag<E>::UnderlyingType e = static_cast<EnumFlag<E>::UnderlyingType>(_enum);
-            Methan::Serde::serialize<EnumFlag<E>::UnderlyingType>(output, e);
+            typename EnumFlag<E>::UnderlyingType e = static_cast<typename EnumFlag<E>::UnderlyingType>(_enum);
+            Methan::Serde::serialize<typename EnumFlag<E>::UnderlyingType>(output, e);
         }
     };
 
