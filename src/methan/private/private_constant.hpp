@@ -3,4 +3,4 @@
 #include <methan/core/except.hpp>
 
 
-#define METHAN_MAX_DNS_RETRY                                              3
+#define METHAN_ESTIMATOR_LOOPS_COUNT                        100000

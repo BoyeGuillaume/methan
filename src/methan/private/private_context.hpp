@@ -22,7 +22,7 @@
 #define METHAN_LOG_INFO(logger, ...)                                                   METHAN_LOG(logger, spdlog::level::info, __VA_ARGS__)
 
 #define METHAN_COMPONENT_LOGGER              (1 << 0)
-
+    
 namespace Methan {
     class Device;
 }
@@ -44,6 +44,19 @@ namespace Methan::__private__ {
 
         std::vector<Device*> devices;
     };
+
+    /**
+     * @brief Generate an UUID given a context
+     * 
+     * @param context The context wich will be used to create the UUID. Notice that this
+     * methods is a block methods
+     * @return Uuid The uuid generated
+     */
+    inline Uuid generate_uuid(Context context)
+    {
+        std::lock_guard guard(context->__uuid_factory_m);
+        return context->uuid_factory();
+    }
 
     /**
      * @brief Convert the Methan::LogLevel to the corresponding stdlog::level

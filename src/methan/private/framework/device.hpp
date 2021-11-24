@@ -26,8 +26,8 @@ namespace Methan {
         EDeviceType deviceType;
         uint32_t core; /// number of thread that can be executed in parrallel
 
-        uint64_t floops;
-        uint64_t freq;
+        float floops; // MHz
+        float freq;   // MHz
 
         METHAN_SERDE_GENERATOR(DeviceDescriptor, uuid, deviceType, core, floops, freq);
     };
