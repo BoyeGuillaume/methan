@@ -27,8 +27,8 @@ METHAN_API Methan::Heap::Heap(Context context, uint64_t maxMemoryUsage)
 #endif
     
 #ifdef METHAN_OS_UNIX_LIKE
-    long pages = sysconf(_SC_AVPHYS_PAGES);
     long page_size = sysconf(_SC_PAGE_SIZE);
+    long pages = get_avphys_pages();
     m_memoryDescriptor.maxUsage = (uint64_t) pages * (uint64_t) page_size;
 #endif
 
