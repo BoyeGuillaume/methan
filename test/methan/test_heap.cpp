@@ -12,12 +12,13 @@ using namespace Methan;
 TEST_CASE("Allocation are working correctly on the heap", "[allocation]") {
     Context context = ContextBuilder()
         .add_logger_stdout(ELogLevel::Debug)
-        .register_cpu_as_candidate(4)
+        .register_cpu_as_candidate(2) // By default github action only gave us 2 cpu :(
         .set_heap_memory_limits(5_MB)
         .build();
 
     REQUIRE(context->devices.size() == 1);
-    REQUIRE(context->devices[0]->descriptor().core == 4);
+    REQUIRE(context->devices[0]->descriptor().core == 2); // Notice that if you run this test on a computer with less than 2 it will fail
+                                                          // But again : who does that nowadays ???
     REQUIRE(context->devices[0]->descriptor().deviceType == EDeviceType::Cpu);
     REQUIRE(context->memories.size() == 1);
     REQUIRE(context->memories[0]->descriptor().maxUsage == 5_MB);

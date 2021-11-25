@@ -83,7 +83,7 @@ namespace Methan {
             return m_memory;
         }
 
-        METHAN_API [[nodiscard]] DataBlock* alloc(DataSize size);
+        _NODISCARD METHAN_API DataBlock* alloc(DataSize size);
         METHAN_API void free(DataBlock* block);
 
         inline DataSize cumulated_usage() const noexcept

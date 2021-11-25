@@ -1,5 +1,3 @@
-#pragma once
-
 #include <catch2/catch_test_macros.hpp>
 #include <methan/private/framework/cpu.hpp>
 #include <methan/private/private_context.hpp>
