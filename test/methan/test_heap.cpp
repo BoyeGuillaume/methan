@@ -52,9 +52,11 @@ TEST_CASE("Allocation are working correctly on the heap", "[allocation]") {
     context->memories[0]->allocator()->free(block2);
     REQUIRE(block2->is_weak());
 
+#ifdef METHAN_EXPAND_ASSERTION
     REQUIRE_THROWS_AS([&]() {
         context->memories[0]->allocator()->free(block2);
     }(), Methan::Exception);
+#endif
 
     delete block2;
     REQUIRE(context->memories[0]->allocator()->current_usage() == 0);
