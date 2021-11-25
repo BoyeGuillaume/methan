@@ -42,7 +42,7 @@ METHAN_API Methan::AbstractAllocator::~AbstractAllocator()
     METHAN_LOG_INFO(context()->logger, "Cumumulated-Memory-Usage for memory {}", to_string(m_cumulated_usage));
 }
 
-_NODISCARD METHAN_API Methan::DataBlock* Methan::AbstractAllocator::alloc(DataSize size)
+[[nodiscard]] METHAN_API Methan::DataBlock* Methan::AbstractAllocator::alloc(DataSize size)
 {
     std::lock_guard guard(m_mutex);
     if(size + m_current_usage < m_current_usage || size + m_current_usage > max_usage())
