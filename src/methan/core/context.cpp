@@ -15,7 +15,7 @@
 
 METHAN_API Methan::ContextBuilder::ContextBuilder()
 : m_cpuCore(0),
-  m_heapMemoryLimits(std::numeric_limits<uint64_t>::max())
+  m_heapMemoryLimits(std::numeric_limits<DataSize>::max())
 {
     
 }
@@ -57,7 +57,7 @@ METHAN_API Methan::ContextBuilder& Methan::ContextBuilder::register_cpu_as_candi
     return *this;
 }
 
-METHAN_API Methan::ContextBuilder& Methan::ContextBuilder::set_heap_memory_limits(uint64_t heapMemoryLimits)
+METHAN_API Methan::ContextBuilder& Methan::ContextBuilder::set_heap_memory_limits(DataSize heapMemoryLimits)
 {
     m_heapMemoryLimits = heapMemoryLimits;
     return *this;
@@ -97,6 +97,11 @@ METHAN_API void Methan::free(Methan::Context context)
     for(int i = (int) context->devices.size() - 1; i >= 0; --i)
     {
         delete context->devices[i];
+    }
+
+    for(int i = (int) context->memories.size() - 1; i >= 0; --i)
+    {
+        delete context->memories[i];
     }
 
     METHAN_LOG_INFO(context->logger, "Cleaning and deleting the context object at {}", spdlog::fmt_lib::ptr(context));

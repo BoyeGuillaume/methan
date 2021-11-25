@@ -1,10 +1,13 @@
 #include <methan/core/context.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+using namespace Methan;
+
 TEST_CASE("Construction of a context and free it (2x times) in sequential", "[context]") {
     for(int i = 0; i < 2; ++i) {
         Methan::Context context = Methan::ContextBuilder()
             .add_logger_stdout(Methan::ELogLevel::Debug)
+            .set_heap_memory_limits(5_MB)
             .build();
         Methan::free(context);
     }

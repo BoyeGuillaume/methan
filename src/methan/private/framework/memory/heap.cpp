@@ -1,7 +1,9 @@
 #include <methan/private/framework/memory/heap.hpp>
 #include <methan/private/private_context.hpp>
-#include <methan/utility/data_literals.hpp>
+#include <methan/utility/data_size.hpp>
+#include <methan/private/private_formatter.hpp>
 #include <limits>
+#include <stdlib.h>
 
 #ifdef METHAN_OS_WINDOWS
 #define NOMINMAX
@@ -12,18 +14,18 @@
 #include <unistd.h>
 #endif
 
-METHAN_API Methan::Heap::Heap(Context context, uint64_t maxMemoryUsage)
+METHAN_API Methan::Heap::Heap(Context context, DataSize maxMemoryUsage)
 : AbstractMemory(context, "heap")
 {
     m_memoryDescriptor.alignement = 0;
-    m_memoryDescriptor.maxAllocationCount = std::numeric_limits<uint64_t>::max();
+    m_memoryDescriptor.maxAllocationCount = std::numeric_limits<DataSize>::max();
     m_memoryDescriptor.memoryType = EMemoryType::CpuHeap;
     
 #ifdef METHAN_OS_WINDOWS
     MEMORYSTATUSEX statex;
     statex.dwLength = sizeof(statex);
     GlobalMemoryStatusEx(&statex);
-    m_memoryDescriptor.maxUsage = (uint64_t) statex.ullAvailPhys;
+    m_memoryDescriptor.maxUsage = (DataSize) statex.ullAvailPhys;
 #endif
     
 #ifdef METHAN_OS_UNIX_LIKE
@@ -34,10 +36,10 @@ METHAN_API Methan::Heap::Heap(Context context, uint64_t maxMemoryUsage)
     #warning "heap.cpp: As MacOS do not support _SC_AVPHYS_PAGES we heap maximum memory describe in the MemoryDescriptor is the maximum amount of memory."
     long pages = sysconf(_SC_PHYS_PAGES);
 #endif
-    m_memoryDescriptor.maxUsage = (uint64_t) pages * (uint64_t) page_size;
+    m_memoryDescriptor.maxUsage = (DataSize) pages * (DataSize) page_size;
 #endif
 
-    METHAN_LOG_INFO(context->logger, "Max-Physical-Memory: {} MB", m_memoryDescriptor.maxUsage / 1_MB);
+    METHAN_LOG_INFO(context->logger, "Max-Physical-Memory: {}", to_string(m_memoryDescriptor.maxUsage));
 
     if(m_memoryDescriptor.maxUsage > maxMemoryUsage)
     {
@@ -47,9 +49,37 @@ METHAN_API Methan::Heap::Heap(Context context, uint64_t maxMemoryUsage)
     // Setup the flag that defines the capabilities of that memory
     m_memoryDescriptor.capabilitiesFlag =
         EMemoryCapabilitiesFlag::SupportKeepAllocationView;
+    
+    // Create the allocator
+    m_allocator = new HeapAllocator(context, this);
 }
 
 METHAN_API Methan::Heap::~Heap()
 {
-    
+    delete (HeapAllocator*) m_allocator;
+}
+
+METHAN_API Methan::HeapAllocator::HeapAllocator(Context context, Heap* heap)
+: AbstractAllocator(context, heap)
+{
+
+}
+
+METHAN_API Methan::HeapAllocator::~HeapAllocator()
+{
+
+}
+
+METHAN_API bool Methan::HeapAllocator::__alloc(DataSize size, DataBlock::PtrType* result)
+{
+    void* ptr = ::malloc((size_t) size);
+    if(ptr == nullptr) return true;
+    *result = ptr;
+    return false;
+}
+
+METHAN_API bool Methan::HeapAllocator::__free(DataBlock::PtrType* result)
+{
+    ::free(std::get<void*>(*result));
+    return false;
 }

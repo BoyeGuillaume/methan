@@ -6,7 +6,7 @@
 
 #include <methan/core/except.hpp>
 #include <methan/utility/varient.hpp>
-#include <methan/utility/data_literals.hpp>
+#include <methan/utility/data_size.hpp>
 
 namespace Methan {
 
@@ -88,7 +88,7 @@ namespace Methan {
          * @param heapMemoryLimits The upper limits of the memory consume by the network
          * @return ContextBuilder& a reference to the current object
          */
-        METHAN_API ContextBuilder& set_heap_memory_limits(uint64_t heapMemoryLimits);
+        METHAN_API ContextBuilder& set_heap_memory_limits(DataSize heapMemoryLimits);
 
         /**
          * @brief Construct the Context object based on the current configuration. May result in an error if the given configuration isn't complete
@@ -101,7 +101,7 @@ namespace Methan {
 
     private:
         uint8_t m_cpuCore;
-        uint64_t m_heapMemoryLimits;
+        DataSize m_heapMemoryLimits;
         std::vector<Methan::Varient> m_sinks;
     };
 

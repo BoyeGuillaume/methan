@@ -7,5 +7,6 @@ namespace Methan {
 
     class AbstractDevice;
     class AbstractMemory;
+    class AbstractAllocator;
 
 }
