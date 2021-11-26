@@ -4,6 +4,7 @@
 #include <mutex>
 #include <atomic>
 #include <vector>
+#include <unordered_map>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
@@ -24,6 +25,25 @@
 
 #define METHAN_COMPONENT_LOGGER              (1 << 0)
 
+namespace Methan {
+
+    typedef std::pair<Uuid,Uuid> UuidPair;
+
+}
+
+namespace std {
+
+    template<>
+    struct hash<Methan::UuidPair>
+    {
+        size_t operator()(const Methan::UuidPair& v) const
+        {
+            return hash<Methan::Uuid>()(v.first) ^ hash<Methan::Uuid>()(v.second);
+        }
+    };
+
+}
+
 namespace Methan::__private__ {
 
     struct __Context
@@ -41,6 +61,7 @@ namespace Methan::__private__ {
 
         std::vector<AbstractDevice*> devices;
         std::vector<AbstractMemory*> memories;
+        std::unordered_map<UuidPair, AbstractDataFlowFactory*> flowsFactories;
     };
 
     /**

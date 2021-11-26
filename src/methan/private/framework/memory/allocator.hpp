@@ -2,11 +2,13 @@
 
 #include <mutex>
 #include <variant>
+#include <atomic>
 
 #include <methan/core/except.hpp>
 #include <methan/core/contextuable.hpp>
 #include <methan/core/serializable.hpp>
 #include <methan/utility/uuid.hpp>
+#include <methan/utility/enum.hpp>
 #include <methan/utility/data_size.hpp>
 #include <methan/private/framework/framework.hpp>
 #include <methan/private/framework/memory/memory.hpp>
@@ -22,6 +24,14 @@ namespace Methan {
         METHAN_SERDE_GENERATOR(DataBlockDescriptor, uuid, memory, size);
     };
 
+    enum class EDataBlockStateFlag : uint32_t
+    {
+        Weak = 1 << 0,
+    };
+
+    typedef EnumFlag<EDataBlockStateFlag> EDataBlockStateFlags;
+    METHAN_ENUMSET_OPERATORS(EDataBlockStateFlags);
+
 
     class DataBlock : public Contextuable
     {
@@ -33,8 +43,19 @@ namespace Methan {
         using PtrType = std::variant<std::monostate, void*>;
 
         METHAN_API ~DataBlock();
-
         METHAN_API PtrType handle();
+
+        METHAN_API bool try_acquire_safe_read_access();
+        METHAN_API bool try_acquire_safe_write_access();
+
+        METHAN_API void acquire_safe_read_access();
+        METHAN_API void acquire_safe_write_access();
+
+        METHAN_API void acquire_read_access();
+        METHAN_API void acquire_write_access();
+
+        METHAN_API void release_read_access();
+        METHAN_API void release_write_access();
 
         inline DataSize size() const noexcept
         {
@@ -43,7 +64,25 @@ namespace Methan {
 
         inline bool is_weak() const noexcept
         {
-            return m_flag & 0x01;
+            return m_flags & EDataBlockStateFlag::Weak;
+        }
+
+        inline bool is_locked() noexcept
+        {
+            std::lock_guard guard(__operation_lock_m);
+            return m_operations.raw != 0;
+        }
+
+        inline uint16_t concurent_write() noexcept
+        {
+            std::lock_guard guard(__operation_lock_m);
+            return m_operations.operatingWrite;
+        }
+
+        inline uint16_t concurrent_read() noexcept
+        {
+            std::lock_guard guard(__operation_lock_m);
+            return m_operations.operatingRead;
         }
 
         inline Uuid uuid() const noexcept
@@ -57,10 +96,24 @@ namespace Methan {
         }
 
     private:
+        struct __CurrentOperations // Unsure that this type is trivially_copyable
+        {
+            union
+            {
+                struct
+                {
+                    uint16_t operatingWrite, operatingRead;
+                };
+                uint32_t raw;
+            };
+        };
+
+        std::mutex __operation_lock_m;
+        __CurrentOperations m_operations;
         AbstractAllocator* m_allocator;
         DataBlockDescriptor m_descriptor;
         PtrType m_handle;
-        uint8_t m_flag;
+        EDataBlockStateFlags m_flags;
     };
 
 

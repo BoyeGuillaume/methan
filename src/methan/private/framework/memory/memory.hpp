@@ -22,8 +22,7 @@ namespace Methan {
 
     enum class EMemoryCapabilitiesFlag : uint8_t
     {
-        SupportAsyncIO = 1 << 0,
-        SupportKeepAllocationView = 1 << 1,
+        SupportKeepAllocationView = 1 << 0,
     };
 
     typedef EnumFlag<EMemoryCapabilitiesFlag> EMemoryCapabilitiesFlags;
@@ -64,12 +63,12 @@ namespace Methan {
 
         inline const Uuid& uuid() const
         {
-            return m_memoryDescriptor.uuid;
+            return m_descriptor.uuid;
         }
 
         inline const MemoryDescriptor& descriptor() const noexcept
         {
-            return m_memoryDescriptor;
+            return m_descriptor;
         }
 
         inline AbstractAllocator* allocator() const noexcept
@@ -78,7 +77,7 @@ namespace Methan {
         }
 
     protected:
-        MemoryDescriptor m_memoryDescriptor;
+        MemoryDescriptor m_descriptor;
         AbstractAllocator* m_allocator;
 
     private:

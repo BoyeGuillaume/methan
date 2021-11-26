@@ -116,7 +116,7 @@ namespace Methan {
             return EnumFlag<T, fullValue>(fullValue & ~m_value);
         }
 
-        constexpr explicit operator bool() const {
+        constexpr operator bool() const {
             return m_value != 0;
         }
 

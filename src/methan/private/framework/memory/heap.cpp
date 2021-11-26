@@ -17,15 +17,15 @@
 METHAN_API Methan::Heap::Heap(Context context, DataSize maxMemoryUsage)
 : AbstractMemory(context, "heap")
 {
-    m_memoryDescriptor.alignement = 0;
-    m_memoryDescriptor.maxAllocationCount = std::numeric_limits<DataSize>::max();
-    m_memoryDescriptor.memoryType = EMemoryType::CpuHeap;
+    m_descriptor.alignement = 0;
+    m_descriptor.maxAllocationCount = std::numeric_limits<DataSize>::max();
+    m_descriptor.memoryType = EMemoryType::CpuHeap;
     
 #ifdef METHAN_OS_WINDOWS
     MEMORYSTATUSEX statex;
     statex.dwLength = sizeof(statex);
     GlobalMemoryStatusEx(&statex);
-    m_memoryDescriptor.maxUsage = (DataSize) statex.ullAvailPhys;
+    m_descriptor.maxUsage = (DataSize) statex.ullAvailPhys;
 #endif
     
 #ifdef METHAN_OS_UNIX_LIKE
@@ -36,26 +36,28 @@ METHAN_API Methan::Heap::Heap(Context context, DataSize maxMemoryUsage)
     #warning "heap.cpp: As MacOS do not support _SC_AVPHYS_PAGES we heap maximum memory describe in the MemoryDescriptor is the maximum amount of memory."
     long pages = sysconf(_SC_PHYS_PAGES);
 #endif
-    m_memoryDescriptor.maxUsage = (DataSize) pages * (DataSize) page_size;
+    m_descriptor.maxUsage = (DataSize) pages * (DataSize) page_size;
 #endif
 
-    METHAN_LOG_INFO(context->logger, "Max-Physical-Memory: {}", to_string(m_memoryDescriptor.maxUsage));
+    METHAN_LOG_INFO(context->logger, "Max-Physical-Memory: {}", to_string(m_descriptor.maxUsage));
 
-    if(m_memoryDescriptor.maxUsage > maxMemoryUsage)
+    if(m_descriptor.maxUsage > maxMemoryUsage)
     {
-        m_memoryDescriptor.maxUsage = maxMemoryUsage;
+        m_descriptor.maxUsage = maxMemoryUsage;
     }
 
     // Setup the flag that defines the capabilities of that memory
-    m_memoryDescriptor.capabilitiesFlag =
+    m_descriptor.capabilitiesFlag =
         EMemoryCapabilitiesFlag::SupportKeepAllocationView;
     
     // Create the allocator
     m_allocator = new HeapAllocator(context, this);
+    m_heapFlowFactory = new HeapFlowFactory(context, this);
 }
 
 METHAN_API Methan::Heap::~Heap()
 {
+    delete m_heapFlowFactory;
     delete (HeapAllocator*) m_allocator;
 }
 
@@ -83,3 +85,74 @@ METHAN_API bool Methan::HeapAllocator::__free(DataBlock::PtrType* result)
     ::free(std::get<void*>(*result));
     return false;
 }
+
+METHAN_API Methan::HeapFlowFactory::HeapFlowFactory(Context context, Heap* heap)
+: AbstractDataFlowFactory(context, heap->uuid(), heap->uuid())
+{
+    // m_descriptor.flags = EDataFlowPoliciesFlag::SupportAbort;
+}
+
+METHAN_API Methan::HeapFlowFactory::~HeapFlowFactory()
+{
+
+}
+
+METHAN_API Methan::AbstractDataFlow* Methan::HeapFlowFactory::__create_flow(DataBlock* source,
+                                                                            DataBlock* destination,
+                                                                            std::vector<FlowPosition> sourceSites,
+                                                                            std::vector<FlowPosition> destinationSites)
+{
+    return new HeapFlow(context(), source, destination, sourceSites, destinationSites, this);
+}
+
+METHAN_API Methan::HeapFlow::HeapFlow(Context context,
+                                      DataBlock* source,
+                                      DataBlock* destination,
+                                      std::vector<FlowPosition> sourceSites,
+                                      std::vector<FlowPosition> destinationSites,
+                                      HeapFlowFactory* factory)
+: AbstractDataFlow(context, source, destination, sourceSites, destinationSites, factory)
+{
+
+}
+
+METHAN_API Methan::HeapFlow::~HeapFlow()
+{
+
+}
+
+METHAN_API void Methan::HeapFlow::__start()
+{
+    // Note of optimisation idea
+    // 1. If elementSize is a multiple of 1, 2, 4, 8 we may use the corresponding int type to trivially copy it faster
+    //    namely 'uint8_t', 'uint16_t', 'uint32_t', 'uint64_t'
+
+    for(size_t i = 0; i < m_sourceSites.size(); ++i)
+    {
+        if(m_sourceSites[i].is_trivially_copyable() && m_destinationSites[i].is_trivially_copyable())
+        {
+            memcpy(reinterpret_cast<uint8_t*>(std::get<void*>(destination()->handle())) + m_destinationSites[i].offset,
+                   reinterpret_cast<const uint8_t*>(std::get<void*>(source()->handle())) + m_sourceSites[i].offset,
+                   m_sourceSites[i].length * m_sourceSites[i].elementSize);
+        }
+        else
+        {
+            uint64_t sourceOffset = m_sourceSites[i].offset;
+            uint64_t destinationOffset = m_destinationSites[i].offset;
+
+            for(DataSize j = 0; j < m_sourceSites[i].length; ++j)
+            {
+                memcpy(reinterpret_cast<uint8_t*>(std::get<void*>(destination()->handle())) + destinationOffset,
+                       reinterpret_cast<const uint8_t*>(std::get<void*>(source()->handle())) + sourceOffset,
+                       m_sourceSites[i].elementSize);
+
+                sourceOffset += m_sourceSites[i].stride;
+                destinationOffset += m_destinationSites[i].stride;
+            }
+        }
+    }
+
+    // Do not forget to mark the operation as terminated !!
+    mark_terminated();
+}
+
