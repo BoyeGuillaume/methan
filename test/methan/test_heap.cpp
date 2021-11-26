@@ -121,6 +121,7 @@ TEST_CASE("Heap flows are correctly working", "[flows]") {
         0x215b337d, 0xd6886f08, 0xb03988fa, 0xb601540f
     };
     
+#ifdef METHAN_EXPAND_ASSERTION
     REQUIRE_THROWS_AS([&](){
         auto* flow = flowsFactory->initiate_flow(b1,
                                                  b2,
@@ -134,6 +135,7 @@ TEST_CASE("Heap flows are correctly working", "[flows]") {
         { FlowPosition(5_MB, 0_B) },
         { FlowPosition(5, 2_MB) });
     }(), Methan::Exception);
+#endif
 
     memcpy(std::get<void*>(b1->handle()), random_uint32_t.data(), random_uint32_t.size() * sizeof(uint32_t));
     flow = flowsFactory->initiate_flow(b1,
