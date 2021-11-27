@@ -3,6 +3,7 @@
 #include <mutex>
 #include <variant>
 #include <atomic>
+#include <unordered_set>
 
 #include <methan/core/except.hpp>
 #include <methan/core/contextuable.hpp>
@@ -184,6 +185,9 @@ namespace Methan {
         AbstractMemory* m_memory;
         Uuid m_uuid;
         std::mutex m_mutex;
+#ifdef METHAN_DEBUG
+        std::unordered_set<Uuid> m_allocations; // Always access behind mutex lock
+#endif
     };
 
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include <methan/core/except.hpp>
 #include <methan/core/serializable.hpp>
@@ -106,10 +107,27 @@ namespace Methan {
             return m_size;
         }
 
+        /**
+         * @brief Convert the given tensor_shape to a strin
+         * 
+         * @return std::string the string representation of the current tensor_shape
+         */
+        inline std::string to_string() const
+        {
+            std::string output = "{";
+            for(size_t i = 0; i < rank(); ++i) {
+                output += std::to_string(m_shape[i]);
+                if(i != rank() - 1) output += ", ";
+            }
+            return output + "}";
+        }
+
     private:
         std::vector<uint32_t> m_shape;
         uint32_t m_rank;
         uint64_t m_size;
+
+        METHAN_SERDE_GENERATOR(TensorShape, m_shape, m_rank, m_size);
     };
 
 }

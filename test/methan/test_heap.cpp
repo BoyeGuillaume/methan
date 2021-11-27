@@ -26,7 +26,6 @@ TEST_CASE("Allocation are working correctly on the heap", "[allocation]")
     REQUIRE(context->memories.size() == 1);
     REQUIRE(context->memories[0]->descriptor().maxUsage == 5_MB);
     REQUIRE(context->memories[0]->descriptor().memoryType == EMemoryType::CpuHeap);
-    REQUIRE(context->memories[0]->descriptor().capabilitiesFlag & EMemoryCapabilitiesFlag::SupportKeepAllocationView);
     REQUIRE(context->memories[0]->descriptor().alignement == 0);
     REQUIRE(context->memories[0]->allocator()->current_usage() == 0);
     REQUIRE(context->memories[0]->allocator()->cumulated_usage() == 0);
@@ -157,5 +156,18 @@ TEST_CASE("Heap flows are correctly working", "[flows]")
     
     delete b1;
     delete b2;
+    Methan::free(context);
+}
+
+TEST_CASE("Detect memory leak (visual test)", "[alloc]")
+{
+    Context context = ContextBuilder()
+        .add_logger_stdout(ELogLevel::Debug)
+        .register_cpu_as_candidate(2) // By default github action only gave us 2 cpu :(
+        .set_heap_memory_limits(5_MB)
+        .build();
+
+    DataBlock* b1 = context->memories[0]->allocator()->alloc(3_MB);        
+
     Methan::free(context);
 }

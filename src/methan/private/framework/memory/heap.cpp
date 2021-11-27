@@ -46,10 +46,6 @@ METHAN_API Methan::Heap::Heap(Context context, DataSize maxMemoryUsage)
         m_descriptor.maxUsage = maxMemoryUsage;
     }
 
-    // Setup the flag that defines the capabilities of that memory
-    m_descriptor.capabilitiesFlag =
-        EMemoryCapabilitiesFlag::SupportKeepAllocationView;
-    
     // Create the allocator
     m_allocator = new HeapAllocator(context, this);
     m_heapFlowFactory = new HeapFlowFactory(context, this);

@@ -127,6 +127,13 @@ METHAN_API Methan::AbstractAllocator::~AbstractAllocator()
     if(m_current_usage != 0)
     {
         METHAN_LOG_WARNING(context()->logger, "Memory leak detected in {} (used memory during destruction of allocator is {})", m_memory->name(), m_current_usage);
+    
+#ifdef METHAN_DEBUG
+        for(const auto& it : m_allocations)
+        {
+            METHAN_LOG_WARNING(context()->logger, "DataBlock({}) still allocated", it);
+        }
+#endif
     }
 }
 
@@ -143,6 +150,9 @@ METHAN_API Methan::AbstractAllocator::~AbstractAllocator()
     dataBlock->m_descriptor.memory = m_memory->uuid();
     dataBlock->m_descriptor.size = size;
     dataBlock->m_descriptor.uuid = generate_uuid(context());
+#ifdef METHAN_DEBUG
+    m_allocations.insert(dataBlock->m_descriptor.uuid);
+#endif
     
     if (__alloc(size, &dataBlock->m_handle))
     {
@@ -151,7 +161,7 @@ METHAN_API Methan::AbstractAllocator::~AbstractAllocator()
         return nullptr;
     }
 
-    METHAN_LOG_INFO(context()->logger, "Allocation of {} of memory by {} onto {} successfull", to_string(size), m_uuid, m_memory->name());
+    METHAN_LOG_INFO(context()->logger, "Allocation of {} of memory by {} onto {} successfull. New Datablock({}) registered", to_string(size), m_uuid, m_memory->name(), dataBlock->m_descriptor.uuid);
 
     m_current_usage += size;
     m_cumulated_usage += size;
@@ -175,6 +185,14 @@ METHAN_API void Methan::AbstractAllocator::free(DataBlock* dataBlock)
         METHAN_LOG_ERROR(context()->logger, "Cannot free DataBlock({}) by Allocator({}) as only Allocator({}) can free this block", dataBlock->uuid(), m_uuid, dataBlock->m_allocator->m_uuid);
         METHAN_THROW_EXCEPTION("DataBlock must be deallocated by the reference allocator", ExceptionType::IllegalArgument);
     }
+
+#ifdef METHAN_DEBUG
+    if(m_allocations.count(dataBlock->m_descriptor.uuid) == 0)
+    {
+        METHAN_LOG_ERROR(context()->logger, "Cannot free DataBlock({}) by Allocator({}) because of invalid state (not contained in the allocation tables)", dataBlock->uuid(), m_uuid);
+        METHAN_INVALID_STATE;
+    }
+#endif
 #endif
 
     if (__free(&dataBlock->m_handle))
@@ -182,6 +200,11 @@ METHAN_API void Methan::AbstractAllocator::free(DataBlock* dataBlock)
         METHAN_LOG_ERROR(context()->logger, "Free failure for DataBlock({}) by Allocator({})", dataBlock->uuid(), uuid());
         METHAN_THROW_EXCEPTION("Failure in AbstractAllocator::free", ExceptionType::Unknown);
     }
+
+    // Delete from the allocation tables
+#ifdef METHAN_DEBUG
+    m_allocations.erase(dataBlock->m_descriptor.uuid);
+#endif
 
     // Decrease the current usage
     METHAN_LOG_DEBUG(context()->logger, "DataBlock {} of size {} was free successfully", dataBlock->uuid(), to_string(dataBlock->size()));

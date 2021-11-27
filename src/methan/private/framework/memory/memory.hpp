@@ -20,19 +20,10 @@ namespace Methan {
         Swap
     };
 
-    enum class EMemoryCapabilitiesFlag : uint8_t
-    {
-        SupportKeepAllocationView = 1 << 0,
-    };
-
-    typedef EnumFlag<EMemoryCapabilitiesFlag> EMemoryCapabilitiesFlags;
-    METHAN_ENUMSET_OPERATORS(EMemoryCapabilitiesFlags);
-
     struct MemoryDescriptor
     {
         Uuid uuid;
         EMemoryType memoryType;
-        EMemoryCapabilitiesFlags capabilitiesFlag;
         uint8_t alignement; // If alignement (> 256) ...
         DataSize maxUsage;
         uint64_t maxAllocationCount;
@@ -40,7 +31,6 @@ namespace Methan {
         METHAN_SERDE_GENERATOR(MemoryDescriptor,
             uuid,
             memoryType,
-            capabilitiesFlag,
             alignement,
             maxUsage,
             maxAllocationCount);
