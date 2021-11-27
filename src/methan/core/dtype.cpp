@@ -30,7 +30,7 @@ METHAN_API Methan::DataSize Methan::size_of(DType type) noexcept
 }
 
 // Kinda hacky but i don't copy that by hey...
-#define HELPER_ITERATOR(type, it)    METHAN_CONCATENATE(METHAN_CONCATENATE(case DType::, type), it): return "dtype." METHAN_STRINGIZE(METHAN_CONCATENATE(type, it));
+#define HELPER_ITERATOR(type, it)    METHAN_CONCATENATE(METHAN_CONCATENATE(case DType::,type),it): return "dtype." METHAN_STRINGIZE(METHAN_CONCATENATE(type,it));
 
 METHAN_API std::string Methan::to_string(DType type) noexcept
 {
