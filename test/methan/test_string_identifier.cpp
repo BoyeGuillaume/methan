@@ -5,7 +5,8 @@
 #include <methan/utility/string_identifier.hpp>
 #include <methan/core/serializable.hpp>
 
-TEST_CASE("StringIdentifier correctly distinguish non-matching elements", "[hash]") {
+TEST_CASE("StringIdentifier correctly distinguish non-matching elements", "[hash]")
+{
     REQUIRE(METHAN_IDENTIFIER("HCE79ciGRNv_VCUmX4Eg9pF9spA") != METHAN_IDENTIFIER("Vxgbr-xxOHTr77RBEdihPhIgyyc"));
     REQUIRE(METHAN_IDENTIFIER("r0tU1Y1t8i_KvSGvfiPer_tznEA") != METHAN_IDENTIFIER("0lWukSXfNK2czaBEO5jK33D64Z0"));
     REQUIRE(METHAN_IDENTIFIER("ebAwd6TOiaQcDkUquMti4uZPHeA") != METHAN_IDENTIFIER("hsKbIxwvIsM1anvbiePNiCwJfmA"));
@@ -108,7 +109,8 @@ TEST_CASE("StringIdentifier correctly distinguish non-matching elements", "[hash
     REQUIRE(METHAN_IDENTIFIER("9NIPsXL5Kiq9GH5sokdJbsdBalE") != METHAN_IDENTIFIER("RoqodzJMZUwSqIZmG3htxHG3w08"));    
 }
 
-TEST_CASE("StringIdentifier is correctly equal onto the same input", "[hash]") {
+TEST_CASE("StringIdentifier is correctly equal onto the same input", "[hash]")
+{
     REQUIRE(METHAN_IDENTIFIER("HCE79ciGRNv_VCUmX4Eg9pF9spA") == METHAN_IDENTIFIER("HCE79ciGRNv_VCUmX4Eg9pF9spA"));
     REQUIRE(METHAN_IDENTIFIER("HELLO WORLD") == METHAN_IDENTIFIER("HELLO WORLD"));
     REQUIRE(METHAN_IDENTIFIER("This Is Not What You Might Think But Hey") == METHAN_IDENTIFIER("This Is Not What You Might Think But Hey"));
@@ -116,7 +118,8 @@ TEST_CASE("StringIdentifier is correctly equal onto the same input", "[hash]") {
 
 using namespace Methan;
 
-TEST_CASE("StringIdentifier correctly serialized", "[hash]") {
+TEST_CASE("StringIdentifier correctly serialized", "[hash]")
+{
     std::vector<StringIdentifier> strs = {
         "9NIPsXL5Kiq9GH5sokdJbsdBalE"_id, "4jRa3BagHRhFmJSEb2hfCJEdr5U"_id, "EFdq8ePgu1Cn01Ua7oRgDvQF6xM"_id, "HCE79ciGRNv_VCUmX4Eg9pF9spA"_id
     };

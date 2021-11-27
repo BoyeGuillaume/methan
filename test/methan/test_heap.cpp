@@ -11,7 +11,8 @@
 
 using namespace Methan;
 
-TEST_CASE("Allocation are working correctly on the heap", "[allocation]") {
+TEST_CASE("Allocation are working correctly on the heap", "[allocation]")
+{
     Context context = ContextBuilder()
         .add_logger_stdout(ELogLevel::Debug)
         .register_cpu_as_candidate(2) // By default github action only gave us 2 cpu :(
@@ -67,7 +68,8 @@ TEST_CASE("Allocation are working correctly on the heap", "[allocation]") {
     Methan::free(context);
 }
 
-TEST_CASE("Heap flows are correctly working", "[flows]") {
+TEST_CASE("Heap flows are correctly working", "[flows]")
+{
     Context context = ContextBuilder()
         .add_logger_stdout(ELogLevel::Debug)
         .register_cpu_as_candidate(2)

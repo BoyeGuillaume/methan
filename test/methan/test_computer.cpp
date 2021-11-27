@@ -6,7 +6,8 @@
 
 using namespace Methan;
 
-TEST_CASE("computer serialisation", "[serde]") {
+TEST_CASE("computer serialisation", "[serde]")
+{
     std::stringstream ss;
     
     {

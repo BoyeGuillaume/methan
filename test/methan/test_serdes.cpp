@@ -6,7 +6,8 @@
 #include <methan/core/except.hpp>
 #include <methan/core/serializable.hpp>
 
-struct TestSerializableClass {
+struct TestSerializableClass
+{
     uint32_t d1;
     std::string str;
     std::vector<float> floats;
@@ -16,7 +17,8 @@ struct TestSerializableClass {
     METHAN_SERDE_GENERATOR(TestSerializableClass, d1, str, floats, values, empty)
 };
 
-TEST_CASE("Serialize and deserialize complex object", "[serialize]") {
+TEST_CASE("Serialize and deserialize complex object", "[serialize]")
+{
     std::stringstream ss;
     {
         TestSerializableClass k;
@@ -40,7 +42,8 @@ TEST_CASE("Serialize and deserialize complex object", "[serialize]") {
     }
 }
 
-TEST_CASE("Serialize field correctly", "[serialize]") {
+TEST_CASE("Serialize field correctly", "[serialize]")
+{
     {
         std::stringstream ss;
         Methan::Serde::serialize<uint32_t>(ss, 50);

@@ -7,7 +7,8 @@
 #include <methan/private/private_context.hpp>
 #include <methan/core/serializable.hpp>
 
-TEST_CASE("UUID correctly compare from one another", "[uuid]") {
+TEST_CASE("UUID correctly compare from one another", "[uuid]")
+{
     Methan::Uuid a(0x56FF5168, 0xFF326518);
     Methan::Uuid b(0x56FF5168, 0xFF000000);
     Methan::Uuid c(0x56000000, 0xFF3265FF);
@@ -27,13 +28,15 @@ TEST_CASE("UUID correctly compare from one another", "[uuid]") {
     REQUIRE(c < a);
 }
 
-TEST_CASE("UUID correctly translated to string", "[uuid]") {
+TEST_CASE("UUID correctly translated to string", "[uuid]")
+{
     Methan::Uuid nulluuid{nullptr};
     REQUIRE(nulluuid.to_string() == "00000000-0000-0000-0000-000000000000");
     REQUIRE(Methan::Uuid{0x123e4567e89b12d3ULL, 0xa456426614174000ULL}.to_string() == "123e4567-e89b-12d3-a456-426614174000");
 }
 
-TEST_CASE("Random UUID generated (Collision test) [heavy]", "[uuid]") {
+TEST_CASE("Random UUID generated (Collision test) [heavy]", "[uuid]")
+{
     Methan::UuidFactory factory;
     std::unordered_set<Methan::Uuid> generated;
 
@@ -45,7 +48,8 @@ TEST_CASE("Random UUID generated (Collision test) [heavy]", "[uuid]") {
     }
 }
 
-TEST_CASE("spdlog accept uuid", "[uuid]") {
+TEST_CASE("spdlog accept uuid", "[uuid]")
+{
     Methan::Uuid uuid = {0x123e4567e89b12d3ULL, 0xa456426614174000ULL};
     Methan::Context context = Methan::ContextBuilder()
         .add_logger_stdout(Methan::ELogLevel::Debug)
@@ -56,7 +60,8 @@ TEST_CASE("spdlog accept uuid", "[uuid]") {
     Methan::free(context);
 }
 
-TEST_CASE("uuid can be serialize", "[uuid]") {
+TEST_CASE("uuid can be serialize", "[uuid]")
+{
     Methan::UuidFactory factory;
     for(size_t i = 0; i < 10; ++i)
     {

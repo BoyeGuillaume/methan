@@ -42,7 +42,8 @@ private:
     std::function<void()> copy;
 };
 
-TEST_CASE("Varient work on non-const pointer", "[class]") {
+TEST_CASE("Varient work on non-const pointer", "[class]")
+{
     int x = 90;
     int* ptr_to_x = &x;
 
@@ -58,7 +59,8 @@ TEST_CASE("Varient work on non-const pointer", "[class]") {
     REQUIRE_THROWS_AS(varient.get<int>(), Methan::Exception);
 }
 
-TEST_CASE("Varient work on const pointer", "[class]") {
+TEST_CASE("Varient work on const pointer", "[class]")
+{
     const char* data = "hello, world";
 
     Methan::Varient varient(data);
@@ -72,7 +74,8 @@ TEST_CASE("Varient work on const pointer", "[class]") {
     REQUIRE_THROWS_AS(varient.get<char*>(), Methan::Exception);
 }
 
-TEST_CASE("Varient work on reference", "[class]") {
+TEST_CASE("Varient work on reference", "[class]")
+{
     size_t living = 0;
     size_t copy = 0;
 
@@ -95,7 +98,8 @@ TEST_CASE("Varient work on reference", "[class]") {
     REQUIRE(copy == 1);
 }
 
-TEST_CASE("Varient work non-init", "[class]") {
+TEST_CASE("Varient work non-init", "[class]")
+{
     Methan::Varient varient(nullptr);
     REQUIRE(varient.is_empty());
     REQUIRE(!varient.is<void>());
