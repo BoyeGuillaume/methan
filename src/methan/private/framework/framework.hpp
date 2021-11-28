@@ -9,5 +9,7 @@ namespace Methan {
     class AbstractMemory;
     class AbstractAllocator;
     class AbstractDataFlowFactory;
+    class Tensor;
+    class TensorBlock;
 
 }

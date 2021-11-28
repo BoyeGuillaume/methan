@@ -34,21 +34,21 @@ namespace Methan {
         { }
 
         /**
-         * @brief Compute the offset in the matrix of a given index
+         * @brief Compute the offset in the matrix of a given indices
          * 
-         * @param index The index of the element we are conciderring
+         * @param indices The indices of the element we are conciderring
          * @return uint64_t The offset of this element in the vectorized form.
          */
-        inline uint64_t offset_of(const std::vector<uint32_t>& index) const
+        inline uint64_t offset_of(const std::vector<uint32_t>& indices) const
         {
-            METHAN_ASSERT_ARGUMENT(index.size() == rank());
+            METHAN_ASSERT_ARGUMENT(indices.size() == rank());
 
             uint64_t offset = 0x0;
             uint64_t stride = 0x1;
             for(uint32_t i = 0; i < rank(); ++i)
             {
-                METHAN_ASSERT_INDEX(index[i], m_shape[i]);
-                offset += stride * (uint64_t) index[i];
+                METHAN_ASSERT_INDEX(indices[i], m_shape[i]);
+                offset += stride * (uint64_t) indices[i];
                 stride *= m_shape[i];
             }
 
@@ -56,12 +56,12 @@ namespace Methan {
         }
 
         /**
-         * @brief Inverse method of `offset_of`. Compute the index corresponding with a given offset
+         * @brief Inverse method of `offset_of`. Compute the indices corresponding with a given offset
          * 
          * @param offset the offset of the element in the vectorized form
          * @return std::vector<uint32_t> the corresponding matrix
          */
-        inline std::vector<uint32_t> index_of(uint64_t offset) const
+        inline std::vector<uint32_t> indices_of(uint64_t offset) const
         {
             METHAN_ASSERT_INDEX(offset, size());
             std::vector<uint32_t> indices(rank(), 0);
@@ -128,6 +128,143 @@ namespace Methan {
         uint64_t m_size;
 
         METHAN_SERDE_GENERATOR(TensorShape, m_shape, m_rank, m_size);
+    };
+
+    class SlicedTensorShape
+    {
+    public:
+        inline SlicedTensorShape(const TensorShape& parent, std::vector<uint32_t> offsets, std::vector<uint32_t> shape)
+        : m_shape(std::move(shape)),
+        m_offsets(std::move(offsets)),
+        m_parentShape(parent.shape()),
+        m_parentSize(parent.size()),
+        m_rank(0x0)
+        {
+            METHAN_ASSERT_ARGUMENT(m_offsets.size() == m_parentShape.size() && m_shape.size() == m_offsets.size());
+            m_rank = (uint32_t) m_offsets.size();
+
+            m_size = 0x1;
+            for(size_t i = 0; i < m_rank; ++i)
+            {
+                METHAN_ASSERT_ARGUMENT(m_shape[i] > 0 && m_shape[i] + m_offsets[i] <= m_parentShape[i]);
+                m_size *= m_shape[i];
+            }
+        }
+
+        inline SlicedTensorShape(const TensorShape& parent, std::initializer_list<uint32_t> offsets, std::initializer_list<uint32_t> shape)
+        : SlicedTensorShape(parent, std::vector<uint32_t>(offsets), std::vector<uint32_t>(shape))
+        { }
+
+        /**
+         * @brief Return the rank of this tensor
+         * 
+         * @return uint32_t The rank of this tensor
+         */
+        inline uint32_t rank() const noexcept
+        {
+            return m_rank;
+        }
+
+        /**
+         * @brief Return the number of element present in this sliced-tensor. May not be the number of bytes depending of the size of one elements
+         * 
+         * @return uint64_t Number of elements containned in this sliced-tensor
+         */
+        inline uint64_t size() const noexcept
+        {
+            return m_size;
+        }
+
+        /**
+         * @brief Return the shape of this sliced-tensor
+         * 
+         * @return const std::vector<uint32_t>& the shape of this tensor
+         */
+        inline const std::vector<uint32_t>& shape() const noexcept
+        {
+            return m_shape;
+        }
+
+        /**
+         * @brief Return the list of offsets for each dimension from the original tensors
+         * 
+         * @return const std::vector<uint32_t> the list of offsets relative to the original tensor
+         */
+        inline const std::vector<uint32_t>& offsets() const noexcept
+        {
+            return m_offsets;
+        }
+
+        /**
+         * @brief Return the shape of the parent
+         */
+        inline const std::vector<uint32_t>& parent_shape() const noexcept
+        {
+            return m_parentShape;
+        }
+
+        /**
+         * @brief Return the size of the parent
+         * 
+         * @return const uint64_t size of the original tensor
+         */
+        inline const uint64_t parent_size() const noexcept
+        {
+            return m_parentSize;
+        }
+
+        /**
+         * @brief The offset of the given indices in the matrix
+         * 
+         * @param indices a list of all the indices (must of size equal to the rank)
+         * @return uint64_t the offset corresponding
+         */
+        inline uint64_t offset_of(const std::vector<uint32_t>& indices) const
+        {
+            METHAN_ASSERT_ARGUMENT(indices.size() == rank());
+
+            uint64_t offset = 0x0;
+            uint64_t stride = 0x1;
+            for(uint32_t i = 0; i < rank(); ++i)
+            {
+                METHAN_ASSERT_INDEX(indices[i], m_shape[i]);
+                offset += stride * (uint64_t) (m_offsets[i] + indices[i]);
+                stride *= m_parentShape[i];
+            }
+
+            return offset;
+        }
+
+        /**
+         * @brief Inverse method of `offset_of`. Compute the indices corresponding with a given offset
+         * 
+         * @param offset the offset of the element in the vectorized form
+         * @return std::vector<uint32_t> the corresponding matrix
+         */
+        inline std::vector<uint32_t> indices_of(uint64_t offset)
+        {
+            METHAN_ASSERT_INDEX(offset, m_parentSize);
+            std::vector<uint32_t> indices(rank(), 0);
+
+            uint64_t stride = parent_size();
+            for(uint32_t i = rank() - 1; i != std::numeric_limits<uint32_t>::max(); --i) // waiting for an overflow to occcure
+            {
+                stride /= m_parentShape[i];
+                indices[i] = (uint32_t) (offset / stride - m_offsets[i]);
+                METHAN_ASSERT_INDEX(indices[i], m_shape[i]);
+                offset -= stride * (uint64_t) (m_offsets[i] + indices[i]);
+            }
+
+            return indices;
+        }
+
+    private:
+        std::vector<uint32_t> m_shape;
+        std::vector<uint32_t> m_offsets;
+        std::vector<uint32_t> m_parentShape;
+        uint64_t m_size;
+        uint64_t m_parentSize;
+        uint32_t m_rank;
     };
 
 }

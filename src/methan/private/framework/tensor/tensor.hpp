@@ -10,6 +10,7 @@
 
 namespace Methan {
 
+
     class Tensor : public Contextuable
     {
         METHAN_DISABLE_COPY_MOVE(Tensor);
