@@ -122,7 +122,7 @@ namespace Methan {
             return output + "}";
         }
 
-    private:
+    protected:
         std::vector<uint32_t> m_shape;
         uint32_t m_rank;
         uint64_t m_size;
@@ -130,60 +130,28 @@ namespace Methan {
         METHAN_SERDE_GENERATOR(TensorShape, m_shape, m_rank, m_size);
     };
 
-    class SlicedTensorShape
+    class SlicedTensorShape : public TensorShape
     {
     public:
         inline SlicedTensorShape(const TensorShape& parent, std::vector<uint32_t> offsets, std::vector<uint32_t> shape)
-        : m_shape(std::move(shape)),
+        : TensorShape(shape),
         m_offsets(std::move(offsets)),
         m_parentShape(parent.shape()),
-        m_parentSize(parent.size()),
-        m_rank(0x0)
+        m_parentSize(parent.size())
         {
             METHAN_ASSERT_ARGUMENT(m_offsets.size() == m_parentShape.size() && m_shape.size() == m_offsets.size());
-            m_rank = (uint32_t) m_offsets.size();
 
-            m_size = 0x1;
+#ifdef METHAN_EXPAND_ASSERTION
             for(size_t i = 0; i < m_rank; ++i)
             {
                 METHAN_ASSERT_ARGUMENT(m_shape[i] > 0 && m_shape[i] + m_offsets[i] <= m_parentShape[i]);
-                m_size *= m_shape[i];
             }
+#endif
         }
 
         inline SlicedTensorShape(const TensorShape& parent, std::initializer_list<uint32_t> offsets, std::initializer_list<uint32_t> shape)
         : SlicedTensorShape(parent, std::vector<uint32_t>(offsets), std::vector<uint32_t>(shape))
         { }
-
-        /**
-         * @brief Return the rank of this tensor
-         * 
-         * @return uint32_t The rank of this tensor
-         */
-        inline uint32_t rank() const noexcept
-        {
-            return m_rank;
-        }
-
-        /**
-         * @brief Return the number of element present in this sliced-tensor. May not be the number of bytes depending of the size of one elements
-         * 
-         * @return uint64_t Number of elements containned in this sliced-tensor
-         */
-        inline uint64_t size() const noexcept
-        {
-            return m_size;
-        }
-
-        /**
-         * @brief Return the shape of this sliced-tensor
-         * 
-         * @return const std::vector<uint32_t>& the shape of this tensor
-         */
-        inline const std::vector<uint32_t>& shape() const noexcept
-        {
-            return m_shape;
-        }
 
         /**
          * @brief Return the list of offsets for each dimension from the original tensors
@@ -214,12 +182,12 @@ namespace Methan {
         }
 
         /**
-         * @brief The offset of the given indices in the matrix
+         * @brief Get the offset corresponding to the given indices in the parent tensor. THIS IS NOT THE SAME AS offset_of !!
          * 
          * @param indices a list of all the indices (must of size equal to the rank)
-         * @return uint64_t the offset corresponding
+         * @return uint64_t the corresponding offset in the parent tensor
          */
-        inline uint64_t offset_of(const std::vector<uint32_t>& indices) const
+        inline uint64_t absolute_offset_of(const std::vector<uint32_t>& indices) const
         {
             METHAN_ASSERT_ARGUMENT(indices.size() == rank());
 
@@ -236,12 +204,12 @@ namespace Methan {
         }
 
         /**
-         * @brief Inverse method of `offset_of`. Compute the indices corresponding with a given offset
+         * @brief Inverse method of `absolute_offset_of`. Compute the indices corresponding to a given offset in the parent tensor
          * 
-         * @param offset the offset of the element in the vectorized form
-         * @return std::vector<uint32_t> the corresponding matrix
+         * @param offset the offset of the element in the parent vectorized-tensor
+         * @return std::vector<uint32_t> the corresponding indices in this tensor
          */
-        inline std::vector<uint32_t> indices_of(uint64_t offset)
+        inline std::vector<uint32_t> absolute_indices_of(uint64_t offset)
         {
             METHAN_ASSERT_INDEX(offset, m_parentSize);
             std::vector<uint32_t> indices(rank(), 0);
@@ -259,12 +227,9 @@ namespace Methan {
         }
 
     private:
-        std::vector<uint32_t> m_shape;
         std::vector<uint32_t> m_offsets;
         std::vector<uint32_t> m_parentShape;
-        uint64_t m_size;
         uint64_t m_parentSize;
-        uint32_t m_rank;
     };
 
 }
