@@ -15,6 +15,12 @@ namespace Methan {
             METHAN_ASSERT_NON_NULL(context);
         }
 
+        inline Contextuable(Contextuable* object)
+        {
+            METHAN_ASSERT_NON_NULL(object);
+            m_context = object->context();
+        }
+
         virtual ~Contextuable() = default;
 
         inline Context context() const noexcept

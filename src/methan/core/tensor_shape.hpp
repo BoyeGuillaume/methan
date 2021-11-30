@@ -230,6 +230,8 @@ namespace Methan {
         std::vector<uint32_t> m_offsets;
         std::vector<uint32_t> m_parentShape;
         uint64_t m_parentSize;
+
+        METHAN_SERDE_GENERATOR(SlicedTensorShape, m_shape, m_rank, m_size, m_offsets, m_parentShape, m_parentSize);
     };
 
 }
