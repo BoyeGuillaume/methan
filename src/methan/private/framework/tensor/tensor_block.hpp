@@ -51,11 +51,19 @@ namespace Methan {
         Uuid tensor;
         Uuid uuid;
 
+        inline TensorBlockDescriptor(Uuid tensor, Uuid uuid, SlicedTensorShape sliced) 
+        : tensor(tensor),
+          uuid(uuid),
+          sliced(sliced)
+        { }
+
         METHAN_SERDE_GENERATOR(TensorBlockDescriptor, sliced, tensor, uuid);
     };
 
     class TensorBlock : public Contextuable
     {
+        METHAN_DISABLE_COPY_MOVE(TensorBlock);
+
     public:
         METHAN_API TensorBlock(Tensor* tensor, DataBlock* dataBlock, const TensorBlockDescriptor& descriptor);
         METHAN_API ~TensorBlock();
@@ -79,6 +87,11 @@ namespace Methan {
         inline ETensorBlockState state() const noexcept
         {
             return m_state;
+        }
+
+        inline Uuid uuid() const noexcept
+        {
+            return m_descriptor.uuid;
         }
 
         /**

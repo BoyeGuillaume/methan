@@ -6,14 +6,16 @@
 #include <methan/utility/uuid.hpp>
 #include <methan/private/framework/framework.hpp>
 #include <methan/core/dtype.hpp>
+#include <mutex>
 
 
 namespace Methan {
 
-
     class Tensor : public Contextuable
     {
         METHAN_DISABLE_COPY_MOVE(Tensor);
+        friend class TensorBlock;
+        
     public:
         METHAN_API Tensor(Context context, const Uuid& uuid, const TensorShape& shape, DType dtype);
         METHAN_API ~Tensor();
@@ -43,7 +45,14 @@ namespace Methan {
             return size() * size_of(m_dtype);
         }
 
+        inline const std::vector<Uuid>& blocks() const noexcept
+        {
+            return m_blocks;
+        }
+
     private:
+        std::vector<Uuid> m_blocks;
+        std::mutex m_mutex;
         TensorShape m_shape;
         Uuid m_uuid;
         DType m_dtype;

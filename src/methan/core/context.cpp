@@ -11,7 +11,8 @@
 #include <methan/private/private_context.hpp>
 #include <methan/private/framework/cpu.hpp>
 #include <methan/private/framework/memory/heap.hpp>
-
+#include <methan/private/framework/tensor/tensor_block.hpp>
+#include <methan/private/private_formatter.hpp>
 
 METHAN_API Methan::ContextBuilder::ContextBuilder()
 : m_cpuCore(0),
@@ -102,6 +103,11 @@ METHAN_API void Methan::free(Methan::Context context)
     for(int i = (int) context->memories.size() - 1; i >= 0; --i)
     {
         delete context->memories[i];
+    }
+
+    if(context->owned_blocks.size() > 0)
+    {
+        METHAN_LOG_WARNING(context->logger, "Destruction of the context while tensor block {} is still alive", context->owned_blocks[0]->uuid());
     }
 
     METHAN_LOG_INFO(context->logger, "Cleaning and deleting the context object at {}", spdlog::fmt_lib::ptr(context));

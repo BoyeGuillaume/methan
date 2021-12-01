@@ -62,6 +62,9 @@ namespace Methan::__private__ {
         std::vector<AbstractDevice*> devices;
         std::vector<AbstractMemory*> memories;
         std::unordered_map<UuidPair, AbstractDataFlowFactory*> flowsFactories;
+        
+        std::mutex block_mutex;
+        std::unordered_map<Uuid, TensorBlock*> owned_blocks;
     };
 
     /**
