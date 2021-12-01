@@ -28,10 +28,8 @@ TEST_CASE("Tensor work correctly", "[tensor]")
     TensorBlockDescriptor descriptor(tensor->uuid(), generate_uuid(context), sliced);
 
     DataBlock* block = context->memories[0]->allocator()->alloc(sliced.size() * size_of(tensor->dtype()));
-    REQUIRE_THROWS_AS([&](){
-        block->acquire_safe_read_access();
-        TensorBlock block(tensor, block, descriptor);
-    }(), Methan::Exception);
+    block->acquire_safe_read_access();  
+    REQUIRE_THROWS_AS(TensorBlock(tensor, block, descriptor), Methan::Exception);
 
     block->release_read_access();
     TensorBlock* tensorBlock = new TensorBlock(tensor, block, descriptor);
