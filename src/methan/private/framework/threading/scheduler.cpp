@@ -85,7 +85,7 @@ METHAN_API void Methan::Scheduler::set_thread_priority(std::thread* thread, Thre
     struct sched_param param;
     int policy;
     int native_priority = 0;
-    pthread_t thId = thread->get_id();
+    pthread_t thId = thread->native_handle();
 
     switch(priority) {
     case ThreadPriority::AboveNormal:
@@ -117,8 +117,8 @@ METHAN_API void Methan::Scheduler::set_thread_priority(std::thread* thread, Thre
         break;
     }
 
-    pthread_getshredparam(thId, &policy, &param);
-    param.shred_priority = lerp<int>(priorityNative, sched_get_priority_min(policy), sched_get_priority_max(policy)) / 100;
+    pthread_getschedparam(thId, &policy, &param);
+    param.sched_priority = lerp<int>(native_priority, sched_get_priority_min(policy), sched_get_priority_max(policy)) / 100;
     pthread_setschedparam(thId, policy, &param);
 #endif
 }
