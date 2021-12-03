@@ -65,6 +65,9 @@ namespace Methan::__private__ {
         
         std::mutex block_mutex;
         std::unordered_map<Uuid, TensorBlock*> owned_blocks;
+
+        std::mutex task_mutex;
+        std::unordered_map<Uuid, AbstractTask*> tasks;
     };
 
     /**

@@ -11,5 +11,6 @@ namespace Methan {
     class AbstractDataFlowFactory;
     class Tensor;
     class TensorBlock;
+    class AbstractTask;
 
 }

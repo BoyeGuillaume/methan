@@ -6,9 +6,10 @@
 #include <thread>
 #include <chrono>
 
+
 using namespace std::literals;
-typedef unsigned long long ull;
 using namespace Methan;
+typedef unsigned long long ull;
 
 void _working_thread_fibo_1_(volatile ull* output, size_t n, Signal* signal)
 {
@@ -56,7 +57,7 @@ TEST_CASE("Signal is working onto the same computer (without using observer)", "
 
     status = signal->wait_for(500ms, [](uint32_t n) { return n == 2; });
     REQUIRE(status == std::cv_status::timeout);
-    thread1.join();
+        thread1.join();
     delete signal;
 
     Methan::free(context);
