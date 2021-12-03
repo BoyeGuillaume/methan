@@ -55,7 +55,7 @@ TEST_CASE("Signal is working onto the same computer (without using observer)", "
     REQUIRE(output == 0);
     REQUIRE(status == std::cv_status::no_timeout);
 
-    status = signal->wait_for(500ms, [](uint32_t n) { return n == 2; });
+    status = signal->wait_for(200ms, [](uint32_t n) { return n == 2; });
     REQUIRE(status == std::cv_status::timeout);
         thread1.join();
     delete signal;

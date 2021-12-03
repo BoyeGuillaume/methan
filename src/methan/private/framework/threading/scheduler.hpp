@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include <thread>
 #include <unordered_set>
 
 #include <methan/core/except.hpp>
