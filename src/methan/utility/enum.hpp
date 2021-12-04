@@ -120,7 +120,7 @@ namespace Methan {
             return m_value != 0;
         }
 
-        constexpr explicit operator UnderlyingType() const {
+        constexpr operator UnderlyingType() const {
             return m_value;
         }
 

@@ -15,7 +15,8 @@ namespace Methan {
     class AbstractTask : public Contextuable
     {
     public:
-        static constexpr uint32_t NotTerminated = 0xffffffff;
+        static constexpr uint32_t NotTerminated = 1 << 31;
+        static constexpr uint32_t FlashingError = 1 << 30;
 
         METHAN_API AbstractTask(Context context, Uuid uuid, std::string name);
         METHAN_API virtual ~AbstractTask();

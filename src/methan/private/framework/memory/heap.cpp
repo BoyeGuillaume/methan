@@ -96,9 +96,10 @@ METHAN_API Methan::HeapFlowFactory::~HeapFlowFactory()
 METHAN_API Methan::AbstractDataFlow* Methan::HeapFlowFactory::__create_flow(DataBlock* source,
                                                                             DataBlock* destination,
                                                                             std::vector<FlowPosition> sourceSites,
-                                                                            std::vector<FlowPosition> destinationSites)
+                                                                            std::vector<FlowPosition> destinationSites,
+                                                                            const Uuid& uuid)
 {
-    return new HeapFlow(context(), source, destination, sourceSites, destinationSites, this);
+    return new HeapFlow(context(), source, destination, sourceSites, destinationSites, this, uuid);
 }
 
 METHAN_API Methan::HeapFlow::HeapFlow(Context context,
@@ -106,18 +107,24 @@ METHAN_API Methan::HeapFlow::HeapFlow(Context context,
                                       DataBlock* destination,
                                       std::vector<FlowPosition> sourceSites,
                                       std::vector<FlowPosition> destinationSites,
-                                      HeapFlowFactory* factory)
-: AbstractDataFlow(context, source, destination, sourceSites, destinationSites, factory)
-{
-
-}
+                                      HeapFlowFactory* factory,
+                                      const Uuid& uuid)
+: AbstractDataFlow(context,
+                   source,
+                   destination,
+                   sourceSites, 
+                   destinationSites,
+                   factory,
+                   uuid,
+                   "HeapFlow")
+{ }
 
 METHAN_API Methan::HeapFlow::~HeapFlow()
 {
 
 }
 
-METHAN_API void Methan::HeapFlow::__start()
+METHAN_API Methan::EDataFlowStateFlags Methan::HeapFlow::__run()
 {
     // Note of optimisation idea
     // 1. If elementSize is a multiple of 1, 2, 4, 8 we may use the corresponding int type to trivially copy it faster
@@ -149,6 +156,6 @@ METHAN_API void Methan::HeapFlow::__start()
     }
 
     // Do not forget to mark the operation as terminated !!
-    mark_terminated();
+    return EDataFlowStateFlag::Successfull;
 }
 

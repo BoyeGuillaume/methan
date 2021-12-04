@@ -2,70 +2,62 @@
 #include <methan/private/private_context.hpp>
 #include <methan/private/private_formatter.hpp>
 
-METHAN_API Methan::AbstractDataFlow::AbstractDataFlow(Context context, DataBlock* source, DataBlock* destination, std::vector<FlowPosition> sourceSites, std::vector<FlowPosition> destinationSites, AbstractDataFlowFactory* factory)
-: Contextuable(context),
+METHAN_API Methan::AbstractDataFlow::AbstractDataFlow(Context context,
+                                                      DataBlock* source,
+                                                      DataBlock* destination,
+                                                      std::vector<FlowPosition> sourceSites,
+                                                      std::vector<FlowPosition> destinationSites,
+                                                      AbstractDataFlowFactory* factory,
+                                                      Uuid uuid,
+                                                      const std::string& name)
+: AbstractTask(context, uuid, name),
   m_source(source),
   m_destination(destination),
   m_sourceSites(sourceSites),
   m_destinationSites(destinationSites),
   m_factory(factory)
 {
-    m_uuid = generate_uuid(context);
+
 }
 
 METHAN_API Methan::AbstractDataFlow::~AbstractDataFlow()
 {
-    std::lock_guard guard(__flag_mutex);
-    if(m_flags & EDataFlowStateFlag::InProgress)
+    if(running())
     {
         METHAN_LOG_ERROR(context()->logger, "AbstractDataFlow() destructor called while operation(s) was still in progress !!");
     }
 }
 
-METHAN_API void Methan::AbstractDataFlow::mark_started()
+
+METHAN_API uint32_t Methan::AbstractDataFlow::run() 
 {
+    EDataFlowStateFlags result = 
+        EDataFlowStateFlag::NotTerminated |
+        EDataFlowStateFlag::Initiate;
+
     m_source->acquire_safe_read_access();
     m_destination->acquire_safe_write_access();
 
-    std::lock_guard guard(__flag_mutex);
-    m_flags |= EDataFlowStateFlag::InProgress | EDataFlowStateFlag::Initiate;
-    METHAN_LOG_DEBUG(context()->logger, "DataFlow({}) initiated", m_uuid);
-}
+    signal()->signal(result);
+    METHAN_LOG_DEBUG(context()->logger, "DataFlow({}) initiated", uuid());
 
-METHAN_API void Methan::AbstractDataFlow::mark_interrupted()
-{
-    m_source->release_read_access();
-    m_destination->release_write_access();
-
-    std::lock_guard guard(__flag_mutex);
-    m_flags |= EDataFlowStateFlag::ErrorState;
-    m_flags &= ~EDataFlowStateFlag::InProgress;
-    METHAN_LOG_WARNING(context()->logger, "DataFlow({}) interrupted with error", m_uuid);
-}
-
-METHAN_API void Methan::AbstractDataFlow::mark_terminated()
-{
-    m_source->release_read_access();
-    m_destination->release_write_access();
-
-    std::lock_guard guard(__flag_mutex);
-    m_flags |= EDataFlowStateFlag::Successfull;
-    m_flags &= ~EDataFlowStateFlag::InProgress;
-    METHAN_LOG_DEBUG(context()->logger, "DataFlow({}) successfully terminated", m_uuid);
-}
-
-METHAN_API void Methan::AbstractDataFlow::start()
-{
-#ifdef METHAN_EXPAND_ASSERTION
-    if(m_flags & EDataFlowStateFlag::Initiate)
-    {
-        METHAN_LOG_ERROR(context()->logger, "DataFlow({})::start() called on a already initiated connection", m_uuid);
-        METHAN_INVALID_STATE;
+    try {
+        result |= __run();
+        result &= ~EDataFlowStateFlag::NotTerminated;
+        METHAN_LOG_DEBUG(context()->logger, "DataFlow({}) successfully terminated", uuid());
     }
-#endif
+    catch(std::exception e) {
+        METHAN_LOG_ERROR(context()->logger, "DataFlow({})::__run() failed with error {}", uuid(), e.what());
+        
+        result |= EDataFlowStateFlag::ErrorState;
+        result &= ~EDataFlowStateFlag::NotTerminated;
+    }
 
-    mark_started();
-    __start();
+    // Reliese the read / write access acquire beforehand    
+    m_source->release_read_access();
+    m_destination->release_write_access();
+
+    return (uint32_t) result;
 }
 
 METHAN_API void Methan::AbstractDataFlow::abort()
@@ -73,15 +65,15 @@ METHAN_API void Methan::AbstractDataFlow::abort()
 #ifdef METHAN_EXPAND_ASSERTION
     if(!(m_factory->descriptor().flags & EDataFlowPoliciesFlag::SupportAbort))
     {
-        METHAN_LOG_ERROR(context()->logger, "DataFlow({})::abort() called on a non-abortable DataFlow({})", m_uuid, m_factory->uuid());
+        METHAN_LOG_ERROR(context()->logger, "DataFlow({})::abort() called on a non-abortable DataFlow({})", uuid(), m_factory->uuid());
         METHAN_INVALID_STATE;
     }
 #endif
 
-    std::lock_guard guard(__flag_mutex);
-    if(!(m_flags & EDataFlowStateFlag::InProgress)) return;
-    METHAN_ASSERT(m_flags & EDataFlowStateFlag::Initiate, Methan::ExceptionType::IllegalArgument, "AbstractDataFlow::abort() may not be called when the flow has not yet been started");
-
+    uint32_t flag = state();
+    if(!(flag & (uint32_t) EDataFlowStateFlag::NotTerminated)) return;
+    METHAN_ASSERT(flag & (uint32_t) EDataFlowStateFlag::Initiate, Methan::ExceptionType::IllegalArgument, "AbstractDataFlow::abort() may not be called when the flow has not yet been started");
+    
     __abort();
 }
 
@@ -106,7 +98,7 @@ METHAN_API Methan::AbstractDataFlowFactory::~AbstractDataFlowFactory()
     context()->flowsFactories.erase(Methan::UuidPair(source(), destination()));
 }
 
-METHAN_API Methan::AbstractDataFlow* Methan::AbstractDataFlowFactory::initiate_flow(DataBlock* source, DataBlock* destination, std::vector<FlowPosition> sourceSites, std::vector<FlowPosition> destinationSites)
+METHAN_API Methan::AbstractDataFlow* Methan::AbstractDataFlowFactory::initiate_flow(DataBlock* source, DataBlock* destination, std::vector<FlowPosition> sourceSites, std::vector<FlowPosition> destinationSites, const Uuid& uuid)
 {
 #ifdef METHAN_EXPAND_ASSERTION
     METHAN_ASSERT_ARGUMENT(sourceSites.size() == destinationSites.size());
@@ -129,7 +121,7 @@ METHAN_API Methan::AbstractDataFlow* Methan::AbstractDataFlowFactory::initiate_f
 #endif
 
     std::lock_guard guard(__lock_flow_creation_m);
-    AbstractDataFlow* flow = __create_flow(source, destination, std::move(sourceSites), std::move(destinationSites));
+    AbstractDataFlow* flow = __create_flow(source, destination, std::move(sourceSites), std::move(destinationSites), uuid);
     METHAN_LOG_DEBUG(context()->logger, "New DataFlow({}) from {} to {}", flow->uuid(), source->reference_allocator()->memory()->name(), destination->reference_allocator()->memory()->name());    
     return flow;
 }

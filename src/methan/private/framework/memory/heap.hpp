@@ -44,7 +44,8 @@ namespace Methan {
         METHAN_API AbstractDataFlow* __create_flow(DataBlock* source,
                                                    DataBlock* destination,
                                                    std::vector<FlowPosition> sourceSites,
-                                                   std::vector<FlowPosition> destinationSites);
+                                                   std::vector<FlowPosition> destinationSites,
+                                                   const Uuid& uuid);
     };
 
     class HeapFlow : public AbstractDataFlow
@@ -55,11 +56,12 @@ namespace Methan {
                             DataBlock* destination,
                             std::vector<FlowPosition> sourceSites,
                             std::vector<FlowPosition> destinationSites,
-                            HeapFlowFactory* factory);
+                            HeapFlowFactory* factory,
+                            const Uuid& uuid);
         friend class HeapFlowFactory;
 
     protected:
-        METHAN_API void __start() override;
+        METHAN_API EDataFlowStateFlags __run() override;
         
     public:
         METHAN_API ~HeapFlow();

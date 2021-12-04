@@ -10,6 +10,7 @@
 #include <methan/utility/data_size.hpp>
 #include <methan/private/framework/framework.hpp>
 #include <methan/private/framework/memory/allocator.hpp>
+#include <methan/private/framework/threading/task.hpp>
 
 
 namespace Methan {
@@ -35,7 +36,7 @@ namespace Methan {
         /**
          * @brief Whever or not the dataflow has started and ain't terminated yet
          */
-        InProgress = 1 << 2,
+        NotTerminated = AbstractTask::NotTerminated,
 
         /**
          * @brief The dataflow is terminated (due to either an error or the success of the operation)
@@ -45,7 +46,7 @@ namespace Methan {
         /**
          * @brief The dataflow has been aborted due to an error
          */
-        ErrorState = (1 << 4) | Done,
+        ErrorState = AbstractTask::FlashingError | Done,
 
         /**
          * @brief The dataflow successfully terminated
@@ -124,12 +125,10 @@ namespace Methan {
     };
 
 
-    class AbstractDataFlow : public Contextuable
+    class AbstractDataFlow : public AbstractTask
     {
         friend class AbstractDataFlowFactory;
         METHAN_DISABLE_COPY_MOVE(AbstractDataFlow);
-
-        METHAN_API void mark_started();
 
     protected:
         METHAN_API AbstractDataFlow(Context context,
@@ -137,17 +136,23 @@ namespace Methan {
                                     DataBlock* destination,
                                     std::vector<FlowPosition> sourceSites,
                                     std::vector<FlowPosition> destinationSites,
-                                    AbstractDataFlowFactory* factory);
+                                    AbstractDataFlowFactory* factory,
+                                    Uuid uuid,
+                                    const std::string& name);
 
-        virtual void __start() = 0;
-        virtual METHAN_API void __abort();
+        virtual EDataFlowStateFlags __run() = 0;
 
-        METHAN_API void mark_interrupted();
-        METHAN_API void mark_terminated();
+        /**
+         * @brief internally perform the abort operation
+         * @warning This method ain't thread safe and may be called within an unsafe context.
+         *          It therefore can be called after that the thread has been terminated.
+         */
+        METHAN_API virtual void __abort();
+
+        METHAN_API uint32_t run() override;
 
     public:
         METHAN_API virtual ~AbstractDataFlow();
-        METHAN_API void start();
         
         /**
          * @brief This methods will abort an copy operation. Notice it may only be called if the corresponding
@@ -157,34 +162,31 @@ namespace Methan {
          */
         METHAN_API void abort();
 
-        inline EDataFlowStateFlags flags() const noexcept
+        inline EDataFlowStateFlags state()
         {
-            return m_flags;
+            return EDataFlowStateFlags(static_cast<EDataFlowStateFlag>(signal()->state()));
         }
 
-        inline bool terminated() const noexcept
+        inline bool running()
         {
-            return flags() & EDataFlowStateFlag::Done;
+            auto flag = state();
+            return (flag & EDataFlowStateFlag::NotTerminated) &&
+                   (flag & EDataFlowStateFlag::Initiate);
         }
 
-        inline bool running() const noexcept
+        inline bool terminated()
         {
-            return flags() & EDataFlowStateFlag::InProgress;
+            return state() & EDataFlowStateFlag::Done;
         }
 
-        inline bool successfull() const noexcept
+        inline bool successfull()
         {
-            return (flags() & EDataFlowStateFlag::Successfull) == EDataFlowStateFlag::Successfull;
+            return (state() & EDataFlowStateFlag::Successfull) == EDataFlowStateFlag::Successfull;
         }
 
-        inline bool interrupted() const noexcept
+        inline bool flashingError()
         {
-            return (flags() & EDataFlowStateFlag::ErrorState) == EDataFlowStateFlag::ErrorState;
-        }
-
-        inline Uuid uuid() const
-        {
-            return m_uuid;
+            return (state() & EDataFlowStateFlag::ErrorState) == EDataFlowStateFlag::ErrorState;
         }
 
         inline AbstractDataFlowFactory* factory() const noexcept
@@ -213,8 +215,6 @@ namespace Methan {
         }
 
     protected:
-        EDataFlowStateFlags m_flags;
-        std::recursive_mutex __flag_mutex;
         const std::vector<FlowPosition> m_sourceSites;
         const std::vector<FlowPosition> m_destinationSites;
     
@@ -222,7 +222,6 @@ namespace Methan {
         DataBlock* m_source;
         DataBlock* m_destination;
         AbstractDataFlowFactory* m_factory;
-        Uuid m_uuid;
     };
 
 
@@ -239,13 +238,15 @@ namespace Methan {
         virtual AbstractDataFlow* __create_flow(DataBlock* source,
                                                 DataBlock* destination,
                                                 std::vector<FlowPosition> sourceSites,
-                                                std::vector<FlowPosition> destinationSites) = 0;
+                                                std::vector<FlowPosition> destinationSites,
+                                                const Uuid& uuid) = 0;
 
     public:
         METHAN_API AbstractDataFlow* initiate_flow(DataBlock* source,
                                                    DataBlock* destination,
                                                    std::vector<FlowPosition> sourceSites,
-                                                   std::vector<FlowPosition> destinationSites);
+                                                   std::vector<FlowPosition> destinationSites,
+                                                   const Uuid& uuid);
 
         inline const DataFlowFactoryDescriptor& descriptor() const noexcept
         {

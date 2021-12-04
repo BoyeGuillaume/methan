@@ -5,6 +5,8 @@
 #include <methan/private/framework/memory/memory.hpp>
 #include <methan/private/framework/device.hpp>
 #include <methan/private/private_context.hpp>
+#include <methan/private/framework/threading/scheduler.hpp>
+#include <methan/private/framework/threading/task.hpp>
 #include <methan/core/context.hpp>
 #include <thread>
 #include <cstring>
@@ -93,7 +95,8 @@ TEST_CASE("Heap flows are correctly working", "[flows]")
     AbstractDataFlow* flow = flowsFactory->initiate_flow(b1,
         b2,
         { FlowPosition(strlen(str) + 1, 0_B) },
-        { FlowPosition(strlen(str) + 1, 2_MB) });
+        { FlowPosition(strlen(str) + 1, 2_MB) },
+        generate_uuid(context));
 
     REQUIRE(flow->source() == b1);
     REQUIRE(flow->destination() == b2);
@@ -104,7 +107,7 @@ TEST_CASE("Heap flows are correctly working", "[flows]")
 
     REQUIRE(!flow->running());
     REQUIRE(flow->terminated());
-    REQUIRE(!flow->interrupted());
+    REQUIRE(!flow->flashingError());
     REQUIRE(flow->successfull());
     REQUIRE(memcmp((uint8_t*) std::get<void*>(b2->handle()) + 2_MB, str, strlen(str)) == 0);
 
@@ -127,14 +130,16 @@ TEST_CASE("Heap flows are correctly working", "[flows]")
         auto* flow = flowsFactory->initiate_flow(b1,
                                                  b2,
         { FlowPosition(1_MB + 1, 0_B) },
-        { FlowPosition(1_MB + 1, 2_MB) });
+        { FlowPosition(1_MB + 1, 2_MB) },
+        generate_uuid(context));
     }(), Methan::Exception);
 
     REQUIRE_THROWS_AS([&](){
         auto* flow = flowsFactory->initiate_flow(b1,
                                                  b2,
         { FlowPosition(5_MB, 0_B) },
-        { FlowPosition(5, 2_MB) });
+        { FlowPosition(5, 2_MB) },
+        generate_uuid(context));
     }(), Methan::Exception);
 #endif
 
@@ -142,7 +147,8 @@ TEST_CASE("Heap flows are correctly working", "[flows]")
     flow = flowsFactory->initiate_flow(b1,
         b2,
         { FlowPosition(random_uint32_t.size(), 0_B, sizeof(uint32_t)) },
-        { FlowPosition(random_uint32_t.size(), 2_MB, sizeof(uint32_t), 5 * sizeof(uint32_t)) });
+        { FlowPosition(random_uint32_t.size(), 2_MB, sizeof(uint32_t), 5 * sizeof(uint32_t)) },
+        generate_uuid(context));
     
     REQUIRE_NOTHROW(flow->start());
     delete flow;
@@ -168,6 +174,52 @@ TEST_CASE("Detect memory leak (visual test)", "[alloc]")
         .build();
 
     DataBlock* b1 = context->memories[0]->allocator()->alloc(3_MB);        
+
+    Methan::free(context);
+}
+
+TEST_CASE("Base Async heap copy", "[async flow]")
+{
+    Context context = ContextBuilder()
+        .add_logger_stdout(ELogLevel::Debug)
+        .register_cpu_as_candidate(2) // By default github action only gave us 2 cpu to work with :(
+        .set_heap_memory_limits(3_MB)
+        .build();
+
+    AbstractAllocator* heapAllocator = context->memories[0]->allocator();
+    AbstractDataFlowFactory* heapFlowFactory = context->flowsFactories[std::make_pair(heapAllocator->uuid(), heapAllocator->uuid())];
+
+    DataBlock* b1 = heapAllocator->alloc(1_MB);
+    DataBlock* b2 = heapAllocator->alloc(1_MB);
+    
+    const char* str = "Did I ever tell you what the definition of insanity is? Insanity is doing the exact "
+                      "same fucking thing over and over again expecting shit to change.\0";
+    memcpy(std::get<void*>(b1->handle()), str, strlen(str) + 1);
+
+    
+    AbstractDataFlow* flow = heapFlowFactory->initiate_flow(b1,
+                                                            b2,
+                                                            { FlowPosition(1_MB) },
+                                                            { FlowPosition(1_MB) },
+                                                            generate_uuid(context));
+    std::thread worker(&AbstractDataFlow::start, flow);
+
+    flow->signal()->wait([](uint32_t value) {
+        return value & (uint32_t) EDataFlowStateFlag::Done;
+    }); // Wait for the copy to terminate
+
+    REQUIRE(memcmp(std::get<void*>(b2->handle()), str, strlen(str) + 1) == 0);
+    REQUIRE(!flow->running());
+    REQUIRE(flow->terminated());
+    REQUIRE(flow->successfull());
+    REQUIRE(!flow->flashingError());
+
+
+    // Cleanup duty
+    worker.join();
+    delete flow;
+    delete b1;
+    delete b2;
 
     Methan::free(context);
 }

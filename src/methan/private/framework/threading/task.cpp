@@ -36,7 +36,7 @@ METHAN_API void Methan::AbstractTask::start()
     catch (std::exception e)
     {
         METHAN_LOG_ERROR(context()->logger, "Task {} with uuid {} failed with error code {}", m_name, m_uuid, e.what());
-        result = 1;
+        result = AbstractTask::FlashingError;
     }
     
     METHAN_LOG_INFO(context()->logger, "task {} with uuid {} terminated", m_name, m_uuid);
