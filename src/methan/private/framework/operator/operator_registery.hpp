@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <unordered_map>
 
 #include <methan/core/except.hpp>
 #include <methan/core/contextuable.hpp>
