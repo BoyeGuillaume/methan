@@ -13,6 +13,7 @@
 #include <methan/private/framework/memory/heap.hpp>
 #include <methan/private/framework/tensor/tensor_block.hpp>
 #include <methan/private/private_formatter.hpp>
+#include <methan/private/framework/operator/operator_registery.hpp>
 
 METHAN_API Methan::ContextBuilder::ContextBuilder()
 : m_cpuCore(0),
@@ -75,6 +76,7 @@ METHAN_API Methan::Context Methan::ContextBuilder::build()
     // Create the async logger
     Context context = new __private__::__Context();
     context->cflag = 0x0;
+    context->registry = nullptr;
     context->logger_thread_pool = std::make_shared<spdlog::details::thread_pool>(4096, 1);
     context->logger = std::make_shared<spdlog::async_logger>("console", sinks.begin(), sinks.end(), context->logger_thread_pool, spdlog::async_overflow_policy::block);
     context->logger->set_pattern("[%Y-%d-%m %X.%e%z] [%l] [tid=%t] (%s:%#) %v ", spdlog::pattern_time_type::local);
@@ -83,6 +85,10 @@ METHAN_API Methan::Context Methan::ContextBuilder::build()
     // Log the context creation
     METHAN_LOG_INFO(context->logger, "Initialisation of the context object at {}", spdlog::fmt_lib::ptr(context));
     context->cflag |= METHAN_COMPONENT_LOGGER;
+
+    // Create the operator registry
+    context->registry = new OperatorRegistry(context);
+    context->cflag |= METHAN_COMPONENT_OPERATOR_REGISTRY;
 
     // register CPU if require
     if(m_cpuCore != 0) new Cpu(context, m_cpuCore);
@@ -109,6 +115,9 @@ METHAN_API void Methan::free(Methan::Context context)
     {
         METHAN_LOG_WARNING(context->logger, "Destruction of the context while tensor block {} is still alive", context->owned_blocks[0]->uuid());
     }
+
+    delete context->registry;
+    context->registry = nullptr;
 
     METHAN_LOG_INFO(context->logger, "Cleaning and deleting the context object at {}", spdlog::fmt_lib::ptr(context));
     delete context;

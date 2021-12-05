@@ -18,6 +18,7 @@ namespace Methan {
 
     class Signal : public Contextuable
     {
+        METHAN_DISABLE_COPY_MOVE(Signal);
         friend class AbstractSignalObserver;
 
     public:

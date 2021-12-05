@@ -14,6 +14,8 @@ namespace Methan {
 
     class AbstractTask : public Contextuable
     {
+        METHAN_DISABLE_COPY_MOVE(AbstractTask);
+
     public:
         static constexpr uint32_t NotTerminated = 1 << 31;
         static constexpr uint32_t FlashingError = 1 << 30;

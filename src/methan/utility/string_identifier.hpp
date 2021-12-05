@@ -52,6 +52,11 @@ namespace Methan {
             return std::hash<uint32_t>()(m_hash);
         }
 
+        inline std::string name() const
+        {
+            return m_name;
+        }
+
     private:
         std::string m_name;
         uint32_t m_hash;
@@ -78,11 +83,16 @@ namespace std {
     template<>
     struct hash<Methan::StringIdentifier>
     {
-        inline size_t operator()(const Methan::StringIdentifier& identifier)
+        inline size_t operator()(const Methan::StringIdentifier& identifier) const
         {
             return identifier.hash();
         }
     };
+
+    inline std::string to_string(const Methan::StringIdentifier& identifier)
+    {
+        return identifier.name();
+    }
 
 }
 #endif

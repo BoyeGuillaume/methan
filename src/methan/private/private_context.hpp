@@ -24,10 +24,12 @@
 #define METHAN_LOG_INFO(logger, ...)                                                   METHAN_LOG(logger, spdlog::level::info, __VA_ARGS__)
 
 #define METHAN_COMPONENT_LOGGER              (1 << 0)
+#define METHAN_COMPONENT_OPERATOR_REGISTRY   (1 << 1)
 
 namespace Methan {
 
     typedef std::pair<Uuid,Uuid> UuidPair;
+    class OperatorRegistry;
 
 }
 
@@ -59,6 +61,7 @@ namespace Methan::__private__ {
         std::recursive_mutex __init_m;
         uint32_t cflag; // Flag of all component that as been initialized
 
+        OperatorRegistry* registry;
         std::vector<AbstractDevice*> devices;
         std::vector<AbstractMemory*> memories;
         std::unordered_map<UuidPair, AbstractDataFlowFactory*> flowsFactories;
@@ -68,6 +71,7 @@ namespace Methan::__private__ {
 
         std::mutex task_mutex;
         std::unordered_map<Uuid, AbstractTask*> tasks;
+
     };
 
     /**

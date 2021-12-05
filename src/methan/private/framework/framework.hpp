@@ -12,5 +12,7 @@ namespace Methan {
     class Tensor;
     class TensorBlock;
     class AbstractTask;
+    class AbstractOperatorFactory;
+    class AbstractOperator;
 
 }
