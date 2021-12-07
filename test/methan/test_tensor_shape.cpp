@@ -56,6 +56,14 @@ TEST_CASE("TensorShape test", "[tensor]")
     REQUIRE(sh.absolute_offset_of({2, 0, 1}) == shape.offset_of({ 4, 1, 1 }));
     REQUIRE(sh.absolute_indices_of(7) == std::vector<uint32_t>{0, 0, 0});
 
+    REQUIRE(sh.parent_offset_of({ 2, 1, 0 }) == 0);
+    REQUIRE(sh.parent_offset_of({ 4, 1, 1 }) == 5);
+    REQUIRE(sh.parent_offset_of({ 4, 1, 0 }) == 2);
+    REQUIRE(sh.parent_offset_of({ 2, 1, 1 }) == 3);
+    REQUIRE(sh.parent_indices_of(0) == std::vector<uint32_t>{ 2, 1, 0 });
+    REQUIRE(sh.parent_indices_of(1) == std::vector<uint32_t>{ 3, 1, 0 });
+    REQUIRE(sh.parent_indices_of(2) == std::vector<uint32_t>{ 4, 1, 0 });
+
     for(size_t i = 0; i < shape.size(); ++i)
     {
         const auto vec = shape.indices_of(i);

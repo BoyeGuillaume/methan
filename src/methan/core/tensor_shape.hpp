@@ -226,6 +226,45 @@ namespace Methan {
             return indices;
         }
 
+        /**
+         * @brief This methods return the offset of indices relative to a compact block-representation of this tensor. The indices lies
+         * in the parent space while the offset lies in the space of a tensor with this shape.
+         * 
+         * @param indices a list of all the indices (must be of size equal to the rank)
+         * @return uint64_t the corresponding offset in the current tensor
+         */
+        inline uint64_t parent_offset_of(std::vector<uint32_t> indices) const
+        {
+            METHAN_ASSERT_ARGUMENT(indices.size() == rank());
+
+            for(size_t i = 0; i < rank(); ++i) {
+                METHAN_ASSERT(indices[i] >= m_offsets[i] && indices[i] < m_offsets[i] + m_shape[i], Methan::ExceptionType::IndexOutOfBounds,
+                    "The given index cannot be converted to a valid index or is not contained in this tensor");
+                indices[i] -= m_offsets[i];
+            }
+
+            return offset_of(indices);
+        }
+
+        /**
+         * @brief Inverse method of `parent_offset_of`. Compute the indices corresponding to a given offset in the current block. That
+         * is to say that the offset lies in the space of a tensor with this shape while the output lies in the parent space.
+         * 
+         * @param offset the offset of the element in the current vectorized-subtensor
+         * @return std::vector<uint32_t> the corresponding indices in the parent tensor
+         */
+        inline std::vector<uint32_t> parent_indices_of(uint64_t offset) const
+        {
+            std::vector<uint32_t> result = indices_of(offset);
+
+            for(size_t i = 0; i < result.size(); ++i)
+            {
+                result[i] += m_offsets[i];
+            }
+
+            return result;
+        }
+
     private:
         std::vector<uint32_t> m_offsets;
         std::vector<uint32_t> m_parentShape;

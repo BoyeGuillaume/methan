@@ -5,13 +5,13 @@
 #include <functional>
 #include <unordered_set>
 
-static std::vector<std::pair<Methan::StringIdentifier, std::function<Methan::AbstractOperatorFactory*(Methan::Context context)>>> __operators;
+static std::vector<std::function<Methan::AbstractOperatorFactory*(Methan::Context context)>> __operators;
 
 
 METHAN_API Methan::OperatorRegistry::OperatorRegistry(Context context)
 : Contextuable(context)
 {
-    METHAN_LOG_DEBUG(context->logger, "OperatorRegistry() construtected");
+    METHAN_LOG_DEBUG(context->logger, "OperatorRegistry() constructed");
 
 #ifdef METHAN_EXPAND_ASSERTION
     std::unordered_set<StringIdentifier> identifiers;
@@ -19,20 +19,21 @@ METHAN_API Methan::OperatorRegistry::OperatorRegistry(Context context)
 
     for(const auto& ops : __operators)
     {
+        AbstractOperatorFactory* factory = ops(context);
+
 #ifdef METHAN_EXPAND_ASSERTION
-        auto it = identifiers.find(ops.first);
+        auto it = identifiers.find(factory->identifier());
         if(it != identifiers.end())
         {
-            METHAN_LOG_ERROR(context->logger, "OperatorFactory with name {} already contained in the registry. Did you call METHAN_REGISTER_FACTORY twice ?", std::to_string(ops.first));
+            METHAN_LOG_ERROR(context->logger, "OperatorFactory with name {} already contained in the registry. Did you call METHAN_REGISTER_FACTORY twice ?", std::to_string(factory->identifier()));
             METHAN_INVALID_STATE;
         }
-        identifiers.insert(ops.first);
+        identifiers.insert(factory->identifier());
 #endif
 
-        AbstractOperatorFactory* factory = ops.second(context);
-        m_factories.insert(std::make_pair(ops.first, factory));
+        m_factories.insert(std::make_pair(factory->identifier(), factory));
 
-        METHAN_LOG_INFO(context->logger, "Found Factory for [id={}]", std::to_string(ops.first));
+        METHAN_LOG_INFO(context->logger, "Found Factory for [id=\"{}\"]", std::to_string(factory->identifier()));
     }
 }
 
@@ -54,8 +55,8 @@ METHAN_API Methan::AbstractOperatorFactory* Methan::OperatorRegistry::find(const
     else return it->second;
 }
 
-METHAN_API std::monostate Methan::OperatorRegistry::__register(const StringIdentifier& identifier, const std::function<AbstractOperatorFactory*(Context)>& _constr)
+METHAN_API std::monostate Methan::OperatorRegistry::__register(const std::function<AbstractOperatorFactory*(Context)>& _constr)
 {
-    __operators.push_back(std::make_pair(identifier, _constr));
+    __operators.push_back(_constr);
     return std::monostate{};
 }
