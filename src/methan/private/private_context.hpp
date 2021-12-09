@@ -35,6 +35,7 @@ namespace Methan {
 
 namespace std {
 
+
     template<>
     struct hash<Methan::UuidPair>
     {

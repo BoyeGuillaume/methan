@@ -55,8 +55,8 @@ METHAN_API Methan::AbstractOperatorFactory* Methan::OperatorRegistry::find(const
     else return it->second;
 }
 
-METHAN_API std::monostate Methan::OperatorRegistry::__register(const std::function<AbstractOperatorFactory*(Context)>& _constr)
+METHAN_API int Methan::OperatorRegistry::__register(const std::function<AbstractOperatorFactory*(Context)>& _constr)
 {
     __operators.push_back(_constr);
-    return std::monostate{};
+    return 0;
 }

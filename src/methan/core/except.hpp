@@ -11,6 +11,7 @@
 #define METHAN_STRINGIZE(x)                                          __METHAN_STRINGIZE_DETAILS(x)
 #define METHAN_ECAPSULATE_LINE_DETAILS(line)                         __METHAN_ECAPSULATE_LINE_DETAILS(line)
 #define METHAN_PP_NARGS(...)                                         __METHAN_PP_NARG_DETAILS(__VA_ARGS__, __METHAN_PP_RSEQ_N_DETAILS())
+#define METHAN_UNIQUE_IDENTIFIER(name)                               METHAN_CONCATENATE(METHAN_CONCATENATE(__generated__, name), METHAN_EXPAND(__LINE__))
 
 #define METHAN_TINY_BUFFER_SIZE                                      64
 #define METHAN_SMALL_BUFFER_SIZE                                     512

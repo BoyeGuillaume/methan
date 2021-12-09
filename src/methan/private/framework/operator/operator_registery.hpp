@@ -13,9 +13,9 @@
 #include <methan/utility/enum.hpp>
 #include <methan/private/framework/framework.hpp>
 
-#define __METHAN_REGISTER_OPERATOR_FACTORY(factory)                                                            \
-    static const std::monostate METHAN_CONCATENATE(__generated__##factory##_, METHAN_EXPAND(__LINE__)) =                                          \
-        Methan::OperatorRegistry::__register([](Context context) { return new factory(context); })
+#define __METHAN_REGISTER_OPERATOR_FACTORY(factory) \
+    Methan::OperatorRegistry::__register([](Context context) { return new factory(context); })
+        
 
 namespace Methan {
 
@@ -41,7 +41,7 @@ namespace Methan {
             return find(identifier);   
         }
 
-        METHAN_API static std::monostate __register(const std::function<AbstractOperatorFactory*(Context)>& _constr);
+        METHAN_API static int __register(const std::function<AbstractOperatorFactory*(Context)>& _constr);
 
     private:
         std::unordered_map<StringIdentifier, AbstractOperatorFactory*> m_factories;

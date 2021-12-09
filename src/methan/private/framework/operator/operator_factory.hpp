@@ -12,7 +12,7 @@
 #include <methan/utility/uuid.hpp>
 #include <methan/private/framework/operator/operator_registery.hpp>
 
-#define METHAN_REGISTER_OP_FACTORY(opFactoryName)                          \
+#define METHAN_REGISTER_OP_FACTORY(opFactoryName)                                        \
     METHAN_EXPAND(__METHAN_REGISTER_OPERATOR_FACTORY(opFactoryName))
 
 namespace Methan {
