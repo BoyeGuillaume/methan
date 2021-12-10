@@ -10,6 +10,7 @@
 #include <methan/utility/string_identifier.hpp>
 #include <methan/utility/enum.hpp>
 #include <methan/utility/uuid.hpp>
+#include <methan/core/tensor_shape.hpp>
 #include <methan/private/framework/operator/operator_registery.hpp>
 
 #define METHAN_REGISTER_OP_FACTORY(opFactoryName)                                        \
@@ -35,12 +36,13 @@ namespace Methan {
             return m_name;
         }
 
-        METHAN_API bool is_valid(const std::vector<TensorBlock*>& blocks) const;
-        METHAN_API AbstractOperator* create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& blocks);
+        virtual std::vector<TensorShape> inferred_result(const std::vector<TensorBlock*>& inputs) const = 0;
+        METHAN_API bool is_valid(const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs) const;
+        METHAN_API AbstractOperator* create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs);
 
     protected:
-        virtual AbstractOperator* __create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& blocks) = 0;
-        virtual bool __is_valid(const std::vector<TensorBlock*>& blocks) const = 0;
+        virtual AbstractOperator* __create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs) = 0;
+        virtual bool __is_valid(const std::vector<TensorBlock*>& inputs) const = 0;
 
     private:
         StringIdentifier m_identifier;

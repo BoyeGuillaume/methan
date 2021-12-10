@@ -20,12 +20,13 @@ namespace Methan {
         }
 
     protected:
-        METHAN_API AbstractOperator(AbstractOperatorFactory* factory, Uuid uuid, const std::vector<TensorBlock*>& blocks);
+        METHAN_API AbstractOperator(AbstractOperatorFactory* factory, Uuid uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs);
         METHAN_API virtual ~AbstractOperator();
 
     private:
         AbstractOperatorFactory* m_factory;
-        std::vector<TensorBlock*> m_blocks;
+        std::vector<TensorBlock*> m_inputs;
+        std::vector<TensorBlock*> m_outputs;
     };
 
 }

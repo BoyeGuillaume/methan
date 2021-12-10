@@ -4,14 +4,19 @@
 #include <methan/private/framework/operator/operator_factory.hpp>
 
 
-Methan::AbstractOperator::AbstractOperator(AbstractOperatorFactory* factory, Uuid uuid, const std::vector<TensorBlock*>& blocks)
+Methan::AbstractOperator::AbstractOperator(AbstractOperatorFactory* factory, Uuid uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs)
 : AbstractTask(factory->context(), uuid, factory->name()),
   m_factory(factory),
-  m_blocks(std::move(blocks))
+  m_inputs(inputs),
+  m_outputs(outputs)
 {
 #ifdef METHAN_EXPAND_ASSERTION
-    for(size_t i = 0; i < m_blocks.size(); ++i) {
-        METHAN_ASSERT_NON_NULL(m_blocks[i]);
+    for(size_t i = 0; i < m_inputs.size(); ++i) {
+        METHAN_ASSERT_NON_NULL(m_inputs[i]);
+    }
+
+    for(size_t i = 0; i < m_outputs.size(); ++i) {
+        METHAN_ASSERT_NON_NULL(m_outputs[i]);
     }
 #endif
 }
