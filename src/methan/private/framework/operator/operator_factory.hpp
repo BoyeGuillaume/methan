@@ -15,7 +15,7 @@
 #include <methan/utility/uuid.hpp>
 #include <methan/core/tensor_shape.hpp>
 #include <methan/private/framework/operator/operator_registery.hpp>
-#include <methan/utility/vector2.hpp>
+
 
 #define METHAN_REGISTER_OP_FACTORY(opFactoryName)                                        \
     METHAN_EXPAND(__METHAN_REGISTER_OPERATOR_FACTORY(opFactoryName))
