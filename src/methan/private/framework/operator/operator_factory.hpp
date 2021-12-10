@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <optional>
+#include <variant>
+#include <functional>
 
 #include <methan/core/except.hpp>
 #include <methan/core/context.hpp>
@@ -12,6 +15,7 @@
 #include <methan/utility/uuid.hpp>
 #include <methan/core/tensor_shape.hpp>
 #include <methan/private/framework/operator/operator_registery.hpp>
+#include <methan/utility/vector2.hpp>
 
 #define METHAN_REGISTER_OP_FACTORY(opFactoryName)                                        \
     METHAN_EXPAND(__METHAN_REGISTER_OPERATOR_FACTORY(opFactoryName))
@@ -36,13 +40,35 @@ namespace Methan {
             return m_name;
         }
 
-        virtual std::vector<TensorShape> inferred_result(const std::vector<TensorBlock*>& inputs) const = 0;
-        METHAN_API bool is_valid(const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs) const;
+        /**
+         * @brief Given the input of a AbstractOperatorFactory return optionally the inferred output
+         * 
+         * @param inputs a list of the input tensor shapes
+         * @return std::optional<std::vector<TensorShape>> a list of the inferred outputs tensor shape
+         */
+        virtual std::optional<std::vector<TensorShape>> inferred_result(const std::vector<TensorShape*>& inputs) const = 0;
+        
+        /**
+         * @brief Whever or not we can create an operator with the given inputs and outputs tensor block
+         * 
+         * @param inputs inputs tensor block
+         * @param outputs outputs tensor block
+         * @return bool whever or not this is a valid split
+         */
+        virtual bool is_valid(const std::vector<SlicedTensorShape>& inputs, const std::vector<SlicedTensorShape>& outputs) const = 0;
+
+        /**
+         * @brief Create a operator object given a configuration
+         * 
+         * @param uuid the uuid of the generated operator
+         * @param inputs the inputs given to the operator
+         * @param outputs the outputs given to the operator
+         * @return AbstractOperator* the newly created object
+         */
         METHAN_API AbstractOperator* create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs);
 
     protected:
         virtual AbstractOperator* __create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs) = 0;
-        virtual bool __is_valid(const std::vector<TensorBlock*>& inputs) const = 0;
 
     private:
         StringIdentifier m_identifier;
