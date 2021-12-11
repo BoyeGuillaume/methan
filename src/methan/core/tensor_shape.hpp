@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <limits>
 
 #include <methan/core/except.hpp>
 #include <methan/core/serializable.hpp>
