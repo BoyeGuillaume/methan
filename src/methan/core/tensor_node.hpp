@@ -21,10 +21,9 @@ namespace Methan
     {
         using TensorNodeImplPtr = __private__::TensorNodeImplPtr;
 
-    public: 
+    public:
     private:
         METHAN_API TensorNode(TensorNodeImplPtr self);
-
         TensorNodeImplPtr m_self;
     };
 }
