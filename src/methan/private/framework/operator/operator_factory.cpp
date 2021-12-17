@@ -16,7 +16,7 @@ METHAN_API Methan::AbstractOperatorFactory::~AbstractOperatorFactory()
     METHAN_LOG_DEBUG(context()->logger, "OperatorFactory(\"{}\") was destructed", std::to_string(m_identifier));
 }
 
-METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs)
+METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters)
 {
 #ifdef METHAN_EXPAND_ASSERTION
     std::vector<SlicedTensorShape> inputs_;
@@ -36,14 +36,14 @@ METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_ope
         outputs_.push_back(outputs[i]->shape());
     }
 
-    if(!is_valid(inputs_, outputs_))   
+    if(!is_valid(inputs_, outputs_, parameters))   
     {
         METHAN_LOG_ERROR(context()->logger, "OperatorFactory(\"{}\")::create_operator() failed as the ::is_valid(inputs) return false", std::to_string(m_identifier));
         METHAN_THROW_EXCEPTION("Invalid argument exception, cannot call this operator with this arguments", ExceptionType::IllegalArgument);
     }
 #endif
 
-    AbstractOperator* ops = __create_operator(uuid, inputs, outputs);
+    AbstractOperator* ops = __create_operator(uuid, inputs, outputs, parameters);
     METHAN_ASSERT_NON_NULL(ops); 
 
     return ops;
