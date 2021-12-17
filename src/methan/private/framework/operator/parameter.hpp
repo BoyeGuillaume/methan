@@ -13,7 +13,7 @@ namespace Methan {
     {
     public:
         template<typename T>
-        inline Parameter(T t) : m_value(std::make_variant(t))
+        inline Parameter(T t) : m_value(t)
         { }
 
         template<typename T>
