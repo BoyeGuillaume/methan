@@ -50,7 +50,7 @@ namespace Methan {
             return m_container[get_offset(i, j)];
         }
 
-        inline const T& operator()(size_t i, size_t j)
+        inline const T& operator()(size_t i, size_t j) const
         {
             return m_container[get_offset(i, j)];
         }
