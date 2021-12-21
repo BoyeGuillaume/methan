@@ -53,8 +53,17 @@ namespace Methan {
 
     struct OpDependencyNearestNeighborEXT
     {
-        size_t k;
-        size_t padding;
+        uint32_t k;
+        
+        /**
+         * @brief define the behavior at the boundary of the tensor
+         * 
+         * Extrema:
+         *  * `padding = 0`: There is no padding, therefore the output_size should be equal to the input_size - k + 1
+         *  * `padding >= k`: invalid state
+         * 
+         */
+        uint32_t padding;
     };
 
     struct OpDependencyCoordinateDescriptor

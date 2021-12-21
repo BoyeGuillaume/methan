@@ -88,14 +88,31 @@ METHAN_API bool Methan::AbstractOperatorFactory::is_valid(const std::vector<Slic
                 }
                 else if(type == EOpDependency::ComponentWise)
                 {
-                    if(inputs[i].parent_shape()[c.input_axis] != outputs[j].parent_shape()[c.output_axis]) return false;
-                    if(inputs[i].shape()[c.input_axis] != outputs[j].shape()[c.output_axis]) return false;
-                    if(inputs[i].offsets()[c.input_axis] != outputs[i].offsets()[c.output_axis]) return false;
-                }
-                // else if(type == EOpDependency::kNearestNeighbor)
-                // {
+                    const uint32_t input_shape = inputs[i].shape()[c.input_axis];
+                    const uint32_t output_shape = outputs[j].shape()[c.output_axis];
+                    const uint32_t input_offset = inputs[i].offsets()[c.input_axis];
+                    const uint32_t output_offset = outputs[i].offsets()[c.output_axis];
 
-                // }
+                    if(inputs[i].parent_shape()[c.input_axis] != outputs[j].parent_shape()[c.output_axis]) return false;
+                    if(input_offset <= output_offset) return false;
+                    if(input_offset + input_shape >= output_offset + output_shape) return false;
+                }
+                else if(type == EOpDependency::kNearestNeighbor)
+                {
+                    const OpDependencyNearestNeighborEXT& ext = std::get<OpDependencyNearestNeighborEXT>(c.ext);
+                    METHAN_ASSERT_ARGUMENT(ext.k > 0);
+                    METHAN_ASSERT_ARGUMENT(ext.padding < k);
+
+                    const uint32_t input_shape = inputs[i].shape()[c.input_axis];
+                    const uint32_t output_shape = outputs[j].shape()[c.output_axis];
+                    const uint32_t input_offset = inputs[i].offsets()[c.input_axis];
+                    const uint32_t output_offset = outputs[i].offsets()[c.output_axis];
+                    const uint32_t delta = ext.k - ext.padding; // => delta > 0
+
+                    if(inputs[i].parent_shape()[c.input_axis] != outputs[j].parent_shape()[c.output_axis] + 2 * delta) return false;
+                    if(input_offset <= output_offset) return false;
+                    if(input_offset + input_shape >= output_offset + output_shape + 2 * delta) return false;
+                }
                 else
                 {
                     METHAN_INVALID_STATE;
