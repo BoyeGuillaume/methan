@@ -20,8 +20,8 @@ namespace Methan {
             METHAN_ASSERT_ARGUMENT(nrows > 0 && ncols > 0);
         }
 
-        template<typename std::enable_if<std::is_constructible<T>::value>::type = true>
-        inline Matrix(size_t nrows, size_t ncols)
+        template<typename U = T>
+        inline Matrix(size_t nrows, size_t ncols, typename std::enable_if<std::is_constructible<U>::value>::type* = 0)
         : Matrix(nrows, ncols, T{})
         { }
 

@@ -27,9 +27,28 @@ namespace Methan {
 
     enum class EOpDependency
     {
+        /**
+         * @brief The operationg REQUIRED all component along the input axis to be defined.
+         * @warning This dependency, is easy to define but disable the optimizer from ever splitting this operation and
+         * therefore should be avoid when possible
+         */
         Everything,
+
+        /**
+         * @brief Perform the operation only if all `k` component in the input tensor are correctly defined.
+         * 
+         * @paragraph Exemple Given a tensor (10, 10, 10) ~> (5, 5, 5) width constraint {{kNearestNeighbor, 2, 0}}. This only constraint enable one to split
+         * the operation into (?, ?, x1:x2) ~ (x1-2:x1+2, ?, ?)
+         */
         kNearestNeighbor,
-        SameComponent
+
+        /**
+         * @brief Perform the operation component-wise along the axis. Require both axis to have the same size. 
+         * 
+         * @paragraph Exemple Given a tensor (5, 10, 15) ~> (9, 15, 10) with constraint {{ComponentWise, 2, 1}} we require that 15 == 15. Also
+         * this only constraint enable one to split the operation into (?, ?, x1:x2) ~ (?, x1:x2, ?)
+         */
+        ComponentWise
     };
 
     struct OpDependencyNearestNeighborEXT
@@ -86,7 +105,7 @@ namespace Methan {
          * @param parameters a list of parameters passed to the operator upon construction
          * @return std::optional<std::vector<TensorShape>> a list of the inferred outputs tensor shape
          */
-        virtual std::optional<std::vector<TensorShape>> inferred_result(const std::vector<TensorShape*>& inputs, const std::vector<Parameter>& parameters) const = 0;
+        virtual std::optional<std::vector<TensorShape>> inferred_result_shape(const std::vector<TensorShape*>& inputs, const std::vector<Parameter>& parameters) const = 0;
         
         /**
          * @brief Whever or not we can create an operator with the given inputs and outputs tensor block
@@ -96,7 +115,7 @@ namespace Methan {
          * @param parameters a list of parameters passed to the operator upon construction
          * @return bool whever or not this is a valid split
          */
-        virtual bool is_valid(const std::vector<SlicedTensorShape>& inputs, const std::vector<SlicedTensorShape>& outputs, const std::vector<Parameter>& parameters) const = 0;
+        METHAN_API bool is_valid(const std::vector<SlicedTensorShape>& inputs, const std::vector<SlicedTensorShape>& outputs, const std::vector<Parameter>& parameters);
 
         /**
          * @brief Create a operator object given a configuration

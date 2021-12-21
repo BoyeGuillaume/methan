@@ -48,3 +48,62 @@ METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_ope
 
     return ops;
 }
+
+METHAN_API bool Methan::AbstractOperatorFactory::is_valid(const std::vector<SlicedTensorShape>& inputs, const std::vector<SlicedTensorShape>& outputs, const std::vector<Parameter>& parameters)
+{
+    // Retrieve the operator dependencies for a given input_ranks & output_ranks
+    std::vector<size_t> input_ranks(inputs.size(), 0);
+    std::vector<size_t> output_ranks(outputs.size(), 0);
+
+    for(size_t i = 0; i < inputs.size(); ++i)
+        input_ranks[i] = inputs[i].rank();
+
+    for(size_t i = 0; i < outputs.size(); ++i)
+        output_ranks[i] = outputs[i].rank();
+
+    const OpDependencyDescriptor* descriptors = get_op_dependencies(input_ranks, output_ranks, parameters);
+
+    // Require the operator to be valid
+    METHAN_ASSERT_NON_NULL(descriptors);
+
+    // Assert that the operator is working correctly
+    for(size_t i = 0; i < inputs.size(); ++i)
+    {
+        for(size_t j = 0; j < outputs.size(); ++j)
+        {
+            // Retrieve the descriptor between the output[j] and the input[i]
+            const std::vector<OpDependencyCoordinateDescriptor>& coordinate_descriptor = descriptors->get(i, j);
+
+            // Determine whever or not all condition for a given input & output are correct
+            for(size_t k = 0; k < coordinate_descriptor.size(); ++k)
+            {
+                const OpDependencyCoordinateDescriptor& c = coordinate_descriptor[k];
+                METHAN_ASSERT_INDEX(c.input_axis, inputs[i].rank());
+                METHAN_ASSERT_INDEX(c.output_axis, outputs[i].rank());
+
+                const EOpDependency type = c.type;
+                if(type == EOpDependency::Everything)
+                {
+                    if(inputs[i].shape()[c.input_axis] != inputs[i].parent_shape()[c.input_axis]) return false;
+                }
+                else if(type == EOpDependency::ComponentWise)
+                {
+                    if(inputs[i].parent_shape()[c.input_axis] != outputs[j].parent_shape()[c.output_axis]) return false;
+                    if(inputs[i].shape()[c.input_axis] != outputs[j].shape()[c.output_axis]) return false;
+                    if(inputs[i].offsets()[c.input_axis] != outputs[i].offsets()[c.output_axis]) return false;
+                }
+                // else if(type == EOpDependency::kNearestNeighbor)
+                // {
+
+                // }
+                else
+                {
+                    METHAN_INVALID_STATE;
+                }
+            }
+        }
+    }
+
+    // If we made it so far, then we can simply return true as the parameters is correct
+    return true;
+}
