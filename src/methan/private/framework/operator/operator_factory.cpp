@@ -4,19 +4,20 @@
 #include <methan/utility/assertion.hpp>
 #include <methan/private/framework/tensor/tensor_block.hpp>
 
-METHAN_API Methan::AbstractOperatorFactory::AbstractOperatorFactory(Context context, const StringIdentifier& identifier)
-: Contextuable(context),
-  m_identifier(identifier)
+METHAN_API Methan::AbstractOperatorFactory::AbstractOperatorFactory(Context context, const StringIdentifier& identifier, EOpFactoryFlags flags)
+: Contextuable(context)
 {
     m_name = "Operator{" + std::to_string(identifier) + "}";
+    m_descriptor.identifier = identifier;
+    m_descriptor.flags = flags;
 }
 
 METHAN_API Methan::AbstractOperatorFactory::~AbstractOperatorFactory()
 {
-    METHAN_LOG_DEBUG(context()->logger, "OperatorFactory(\"{}\") was destructed", std::to_string(m_identifier));
+    METHAN_LOG_DEBUG(context()->logger, "OperatorFactory(\"{}\") was destructed", std::to_string(identifier()));
 }
 
-METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters)
+METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreationDescriptor& create_descriptor)
 {
 #ifdef METHAN_EXPAND_ASSERTION
     std::vector<SlicedTensorShape> inputs_;
@@ -38,12 +39,12 @@ METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_ope
 
     if(!is_valid(inputs_, outputs_, parameters))   
     {
-        METHAN_LOG_ERROR(context()->logger, "OperatorFactory(\"{}\")::create_operator() failed as the ::is_valid(inputs) return false", std::to_string(m_identifier));
+        METHAN_LOG_ERROR(context()->logger, "OperatorFactory(\"{}\")::create_operator() failed as the ::is_valid(inputs) return false", std::to_string(identifier()));
         METHAN_THROW_EXCEPTION("Invalid argument exception, cannot call this operator with this arguments", ExceptionType::IllegalArgument);
     }
 #endif
 
-    AbstractOperator* ops = __create_operator(uuid, inputs, outputs, parameters);
+    AbstractOperator* ops = __create_operator(uuid, inputs, outputs, parameters, create_descriptor);
     METHAN_ASSERT_NON_NULL(ops); 
 
     return ops;

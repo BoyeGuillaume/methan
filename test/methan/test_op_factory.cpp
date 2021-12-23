@@ -9,7 +9,7 @@ static OpDependencyDescriptor* __descriptor;
 class OpTestFactory : public AbstractOperatorFactory
 {
 public:
-    OpTestFactory(Context context) : AbstractOperatorFactory(context, METHAN_IDENTIFIER("OpTestFactory"))
+    OpTestFactory(Context context) : AbstractOperatorFactory(context, METHAN_IDENTIFIER("OpTestFactory"), EOpFactoryFlag::SupportSynchronous)
     { }
 
     const OpDependencyDescriptor* get_op_dependencies(const std::vector<size_t>& input_ranks, const std::vector<size_t>& output_ranks, const std::vector<Parameter>& parameters) override
@@ -23,7 +23,7 @@ public:
     }
 
 protected:
-    AbstractOperator* __create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters) override
+    AbstractOperator* __create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreationDescriptor& descriptor) override
     {
         return nullptr;
     }

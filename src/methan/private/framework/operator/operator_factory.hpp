@@ -18,12 +18,29 @@
 #include <methan/private/framework/operator/parameter.hpp>
 #include <methan/core/tensor_shape.hpp>
 #include <methan/private/framework/operator/operator_registery.hpp>
+#include <methan/utility/enum.hpp>
 
 
 #define METHAN_REGISTER_OP_FACTORY(opFactoryName)                                        \
     METHAN_EXPAND(__METHAN_REGISTER_OPERATOR_FACTORY(opFactoryName))
 
 namespace Methan {
+
+    enum class EOpFactoryFlag : uint32_t
+    {
+        SupportAsynchronous = 1 << 0,
+
+        SupportSynchronous  = 1 << 1,
+    };
+
+    typedef EnumFlag<EOpFactoryFlag> EOpFactoryFlags;
+    METHAN_ENUMSET_OPERATORS(EOpFactoryFlags);
+
+    struct OpDescriptor
+    {
+        StringIdentifier identifier;
+        EOpFactoryFlags flags;
+    };
 
     enum class EOpDependency
     {
@@ -74,20 +91,34 @@ namespace Methan {
         std::variant<std::monostate, OpDependencyNearestNeighborEXT> ext;
     };
 
-    typedef Matrix<std::vector<OpDependencyCoordinateDescriptor>> OpDependencyDescriptor;
+    struct OpCreationDescriptor
+    {
+        Uuid device_uuid;
+    };
 
+    typedef Matrix<std::vector<OpDependencyCoordinateDescriptor>> OpDependencyDescriptor;
 
     class AbstractOperatorFactory : public Contextuable
     {
         METHAN_DISABLE_COPY_MOVE(AbstractOperatorFactory);
 
     public:
-        METHAN_API AbstractOperatorFactory(Context context, const StringIdentifier& identifier);
+        METHAN_API AbstractOperatorFactory(Context context, const StringIdentifier& identifier, EOpFactoryFlags flags);
         METHAN_API virtual ~AbstractOperatorFactory();
 
         inline const StringIdentifier& identifier() const
         {
-            return m_identifier;
+            return m_descriptor.identifier;
+        }
+
+        inline EOpFactoryFlags flags() const
+        {
+            return m_descriptor.flags;
+        }
+
+        inline const OpDescriptor* descriptor() const 
+        {
+            return &m_descriptor;
         }
 
         inline const std::string& name() const noexcept
@@ -135,13 +166,13 @@ namespace Methan {
          * @param parameters a list of all the parameters passed to the operator upon construction
          * @return AbstractOperator* the newly created object
          */
-        METHAN_API AbstractOperator* create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters);
+        METHAN_API AbstractOperator* create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreationDescriptor& create_descriptor);
 
     protected:
-        virtual AbstractOperator* __create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters) = 0;
+        virtual AbstractOperator* __create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreationDescriptor& create_descriptor) = 0;
 
     private:
-        StringIdentifier m_identifier;
+        OpDescriptor m_descriptor;
         std::string m_name;
     };
 
