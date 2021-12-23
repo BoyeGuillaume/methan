@@ -5,10 +5,10 @@
 
 
 
-METHAN_API Methan::Signal::Signal(Context context, Uuid uuid)
+METHAN_API Methan::Signal::Signal(Context context, Uuid uuid, uint32_t value)
 : Contextuable(context),
   m_uuid(uuid),
-  m_value(0x0)
+  m_value(value)
 {
     METHAN_LOG_DEBUG(context->logger, "Signal create with uuid {}", m_uuid);
 }

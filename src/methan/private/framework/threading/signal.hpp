@@ -22,7 +22,7 @@ namespace Methan {
         friend class AbstractSignalObserver;
 
     public:
-        METHAN_API Signal(Context context, Uuid uuid);
+        METHAN_API Signal(Context context, Uuid uuid, uint32_t value = 0x0);
         METHAN_API ~Signal();
 
         METHAN_API void signal(uint32_t value);

@@ -7,8 +7,6 @@
 #include <methan/core/weak_tensor.hpp>
 
 
-
-
 namespace Methan::__private__
 {
     class TensorNodeImpl;

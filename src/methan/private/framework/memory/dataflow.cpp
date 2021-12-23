@@ -32,7 +32,6 @@ METHAN_API Methan::AbstractDataFlow::~AbstractDataFlow()
 METHAN_API uint32_t Methan::AbstractDataFlow::run() 
 {
     EDataFlowStateFlags result = 
-        EDataFlowStateFlag::NotTerminated |
         EDataFlowStateFlag::Initiate;
 
     m_source->acquire_safe_read_access();
@@ -43,14 +42,13 @@ METHAN_API uint32_t Methan::AbstractDataFlow::run()
 
     try {
         result |= __run();
-        result &= ~EDataFlowStateFlag::NotTerminated;
+        result |= EDataFlowStateFlag::Terminated;
         METHAN_LOG_DEBUG(context()->logger, "DataFlow({}) successfully terminated", uuid());
     }
     catch(std::exception e) {
         METHAN_LOG_ERROR(context()->logger, "DataFlow({})::__run() failed with error {}", uuid(), e.what());
         
         result |= EDataFlowStateFlag::ErrorState;
-        result &= ~EDataFlowStateFlag::NotTerminated;
     }
 
     // Reliese the read / write access acquire beforehand    
@@ -71,7 +69,7 @@ METHAN_API void Methan::AbstractDataFlow::abort()
 #endif
 
     uint32_t flag = state();
-    if(!(flag & (uint32_t) EDataFlowStateFlag::NotTerminated)) return;
+    if(!(flag & (uint32_t) EDataFlowStateFlag::Terminated)) return;
     METHAN_ASSERT(flag & (uint32_t) EDataFlowStateFlag::Initiate, Methan::ExceptionType::IllegalArgument, "AbstractDataFlow::abort() may not be called when the flow has not yet been started");
     
     __abort();

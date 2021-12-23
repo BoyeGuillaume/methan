@@ -31,27 +31,17 @@ namespace Methan {
         /**
          * @brief Whever or not the dataflow has started
          */
-        Initiate = 1 << 1,
+        Initiate = AbstractTask::Initiated,
     
-        /**
-         * @brief Whever or not the dataflow has started and ain't terminated yet
-         */
-        NotTerminated = AbstractTask::NotTerminated,
-
         /**
          * @brief The dataflow is terminated (due to either an error or the success of the operation)
          */
-        Done = 1 << 3,
+        Terminated = AbstractTask::Terminated,
 
         /**
          * @brief The dataflow has been aborted due to an error
          */
-        ErrorState = AbstractTask::FlashingError | Done,
-
-        /**
-         * @brief The dataflow successfully terminated
-         */
-        Successfull = (1 << 5) | Done
+        ErrorState = AbstractTask::Failure | Terminated,
     };
 
     typedef EnumFlag<EDataFlowPoliciesFlag> EDataFlowPoliciesFlags;
@@ -170,18 +160,18 @@ namespace Methan {
         inline bool running()
         {
             auto flag = state();
-            return (flag & EDataFlowStateFlag::NotTerminated) &&
-                   (flag & EDataFlowStateFlag::Initiate);
+            return (flag & EDataFlowStateFlag::Initiate) &&
+                   !(flag & EDataFlowStateFlag::Terminated);
         }
 
         inline bool terminated()
         {
-            return state() & EDataFlowStateFlag::Done;
+            return state() & EDataFlowStateFlag::Terminated;
         }
 
         inline bool successfull()
         {
-            return (state() & EDataFlowStateFlag::Successfull) == EDataFlowStateFlag::Successfull;
+            return (state() & EDataFlowStateFlag::ErrorState) == EDataFlowStateFlag::Terminated;
         }
 
         inline bool flashingError()

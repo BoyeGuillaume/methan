@@ -9,6 +9,7 @@
 #include <methan/core/except.hpp>
 #include <methan/core/context.hpp>
 #include <methan/core/contextuable.hpp>
+#include <methan/core/serializable.hpp>
 #include <methan/private/framework/framework.hpp>
 #include <methan/utility/uuid.hpp>
 #include <methan/utility/string_identifier.hpp>
@@ -91,9 +92,12 @@ namespace Methan {
         std::variant<std::monostate, OpDependencyNearestNeighborEXT> ext;
     };
 
-    struct OpCreationDescriptor
+    struct OpCreateDescriptor
     {
         Uuid device_uuid;
+        Uuid op_uuid;
+
+        METHAN_SERDE_GENERATOR(OpCreateDescriptor, op_uuid, device_uuid);
     };
 
     typedef Matrix<std::vector<OpDependencyCoordinateDescriptor>> OpDependencyDescriptor;
@@ -160,16 +164,16 @@ namespace Methan {
         /**
          * @brief Create a operator object given a configuration
          * 
-         * @param uuid the uuid of the generated operator
          * @param inputs the inputs given to the operator
          * @param outputs the outputs given to the operator
          * @param parameters a list of all the parameters passed to the operator upon construction
+         * @param create_description a struct holding parameters for the creation of this operator
          * @return AbstractOperator* the newly created object
          */
-        METHAN_API AbstractOperator* create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreationDescriptor& create_descriptor);
+        METHAN_API AbstractOperator* create_operator(const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreateDescriptor& create_descriptor);
 
     protected:
-        virtual AbstractOperator* __create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreationDescriptor& create_descriptor) = 0;
+        virtual AbstractOperator* __create_operator(const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreateDescriptor& create_descriptor) = 0;
 
     private:
         OpDescriptor m_descriptor;

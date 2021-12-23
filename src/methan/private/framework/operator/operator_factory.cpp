@@ -17,7 +17,7 @@ METHAN_API Methan::AbstractOperatorFactory::~AbstractOperatorFactory()
     METHAN_LOG_DEBUG(context()->logger, "OperatorFactory(\"{}\") was destructed", std::to_string(identifier()));
 }
 
-METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_operator(const Uuid& uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreationDescriptor& create_descriptor)
+METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_operator(const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreateDescriptor& create_descriptor)
 {
 #ifdef METHAN_EXPAND_ASSERTION
     std::vector<SlicedTensorShape> inputs_;
@@ -44,7 +44,7 @@ METHAN_API Methan::AbstractOperator* Methan::AbstractOperatorFactory::create_ope
     }
 #endif
 
-    AbstractOperator* ops = __create_operator(uuid, inputs, outputs, parameters, create_descriptor);
+    AbstractOperator* ops = __create_operator(inputs, outputs, parameters, create_descriptor);
     METHAN_ASSERT_NON_NULL(ops); 
 
     return ops;

@@ -156,6 +156,6 @@ METHAN_API Methan::EDataFlowStateFlags Methan::HeapFlow::__run()
     }
 
     // Do not forget to mark the operation as terminated !!
-    return EDataFlowStateFlag::Successfull;
+    return EDataFlowStateFlag::Terminated;
 }
 

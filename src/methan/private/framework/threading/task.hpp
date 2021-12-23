@@ -17,8 +17,9 @@ namespace Methan {
         METHAN_DISABLE_COPY_MOVE(AbstractTask);
 
     public:
-        static constexpr uint32_t NotTerminated = 1 << 31;
-        static constexpr uint32_t FlashingError = 1 << 30;
+        static constexpr uint32_t Terminated = 1 << 29;
+        static constexpr uint32_t Failure = 1 << 30;
+        static constexpr uint32_t Initiated = 1 << 31;
 
         METHAN_API AbstractTask(Context context, Uuid uuid, std::string name);
         METHAN_API virtual ~AbstractTask();
@@ -41,7 +42,6 @@ namespace Methan {
     private:
         Uuid m_uuid;
         std::string m_name;
-        std::atomic_int8_t m_flags;
         std::shared_ptr<Signal> m_signal;
     };
 

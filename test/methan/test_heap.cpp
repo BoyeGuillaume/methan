@@ -205,7 +205,7 @@ TEST_CASE("Base Async heap copy", "[async flow]")
     std::thread worker(&AbstractDataFlow::start, flow);
 
     flow->signal()->wait([](uint32_t value) {
-        return value & (uint32_t) EDataFlowStateFlag::Done;
+        return value & (uint32_t) EDataFlowStateFlag::Terminated;
     }); // Wait for the copy to terminate
 
     REQUIRE(memcmp(std::get<void*>(b2->handle()), str, strlen(str) + 1) == 0);

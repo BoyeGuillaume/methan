@@ -53,9 +53,9 @@ TEST_CASE("Task work correctly", "[threading]") {
 
     std::thread thread(&FiboTask::start, task);
     Scheduler::set_thread_priority(&thread, ThreadPriority::TimeCritical);
-    signal->wait([](uint32_t value){ return value != AbstractTask::NotTerminated; });  
+    signal->wait([](uint32_t value){ return value & AbstractTask::Terminated; });  
 
-    REQUIRE(signal->state() != AbstractTask::NotTerminated);
+    REQUIRE(signal->state() != AbstractTask::Failure);
     REQUIRE(output == 6765);
 
     thread.join();

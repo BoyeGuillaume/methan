@@ -7,11 +7,9 @@
 METHAN_API Methan::AbstractTask::AbstractTask(Context context, Uuid uuid, std::string name)
 : Contextuable(context),
   m_uuid(uuid),
-  m_name(name),
-  m_flags(0x0)
+  m_name(name)
 {
-    m_signal = std::make_shared<Signal>(context, uuid);
-    m_signal->signal(AbstractTask::NotTerminated);
+    m_signal = std::make_shared<Signal>(context, uuid, 0x0);
     context->task_mutex.lock();
     context->tasks.insert(std::make_pair(uuid, this));
     context->task_mutex.unlock();
@@ -32,11 +30,12 @@ METHAN_API void Methan::AbstractTask::start()
     try
     {
         result = run();
+        result |= AbstractTask::Terminated | AbstractTask::Initiated;
     }
     catch (std::exception e)
     {
         METHAN_LOG_ERROR(context()->logger, "Task {} with uuid {} failed with error code {}", m_name, m_uuid, e.what());
-        result = AbstractTask::FlashingError;
+        result = AbstractTask::Failure | AbstractTask::Initiated | AbstractTask::Terminated;
     }
     
     METHAN_LOG_INFO(context()->logger, "task {} with uuid {} terminated", m_name, m_uuid);
