@@ -56,6 +56,7 @@ METHAN_API void Methan::Signal::wait(std::function<bool(uint32_t)> predicate)
     //    and resume waiting if the wake up was spurious. 
     // Note that this is done by the std library
     std::unique_lock<std::mutex> lock(m_mutex);
+    if (predicate(this->m_value.load())) return;
     m_notifier.wait(lock, [this, predicate]() { return predicate(this->m_value.load()); });
     lock.unlock();
 }
@@ -63,6 +64,7 @@ METHAN_API void Methan::Signal::wait(std::function<bool(uint32_t)> predicate)
 METHAN_API std::cv_status Methan::Signal::wait_for(std::chrono::milliseconds ms, std::function<bool(uint32_t)> predicate)
 {
     std::unique_lock<std::mutex> lock(m_mutex);
+    if (predicate(this->m_value.load())) return std::cv_status::no_timeout;
     std::cv_status status = m_notifier.wait_for(lock, ms);
     lock.unlock();
     return status;

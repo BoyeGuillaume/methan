@@ -27,9 +27,8 @@ void _working_thread_fibo_1_(volatile ull* output, size_t n, Signal* signal)
     }
 
     signal->signal(1);
-
+    
     std::this_thread::sleep_for(1000ms);
-
     *output = 0;
     signal->signal(0);
 
@@ -57,7 +56,7 @@ TEST_CASE("Signal is working onto the same computer (without using observer)", "
 
     status = signal->wait_for(200ms, [](uint32_t n) { return n == 2; });
     REQUIRE(status == std::cv_status::timeout);
-        thread1.join();
+    thread1.join();
     delete signal;
 
     Methan::free(context);
