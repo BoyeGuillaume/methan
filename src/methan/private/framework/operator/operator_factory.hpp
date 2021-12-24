@@ -10,28 +10,32 @@
 #include <methan/core/context.hpp>
 #include <methan/core/contextuable.hpp>
 #include <methan/core/serializable.hpp>
-#include <methan/private/framework/framework.hpp>
-#include <methan/utility/uuid.hpp>
-#include <methan/utility/string_identifier.hpp>
-#include <methan/utility/enum.hpp>
-#include <methan/utility/uuid.hpp>
-#include <methan/utility/matrix.hpp>
-#include <methan/private/framework/operator/parameter.hpp>
 #include <methan/core/tensor_shape.hpp>
-#include <methan/private/framework/operator/operator_registery.hpp>
+#include <methan/utility/uuid.hpp>
 #include <methan/utility/enum.hpp>
+#include <methan/utility/matrix.hpp>
+#include <methan/utility/string_identifier.hpp>
+#include <methan/private/framework/framework.hpp>
+#include <methan/private/framework/operator/parameter.hpp>
+#include <methan/private/framework/operator/operator_registery.hpp>
 
 
 #define METHAN_REGISTER_OP_FACTORY(opFactoryName)                                        \
     METHAN_EXPAND(__METHAN_REGISTER_OPERATOR_FACTORY(opFactoryName))
-
+    
 namespace Methan {
 
     enum class EOpFactoryFlag : uint32_t
     {
-        SupportAsynchronous = 1 << 0,
+        /**
+         * @brief A mask to only select the kernel support of a given operator. (last 4 bits)
+         */
+        KernelSupportMask = 0xf,
 
-        SupportSynchronous  = 1 << 1,
+        /**
+         * @brief Whever or not the selected factory support the kernel cpu
+         */
+        KernelCpu = 0x1,
     };
 
     typedef EnumFlag<EOpFactoryFlag> EOpFactoryFlags;
@@ -115,7 +119,7 @@ namespace Methan {
             return m_descriptor.identifier;
         }
 
-        inline EOpFactoryFlags flags() const
+        inline const EOpFactoryFlags flags() const
         {
             return m_descriptor.flags;
         }

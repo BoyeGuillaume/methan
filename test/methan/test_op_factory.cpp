@@ -1,5 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <methan/private/framework/operator/operator_factory.hpp>
+#include <methan/private/framework/operator/operator_registery.hpp>
+#include <methan/private/private_context.hpp>
 #include <methan/core/context.hpp>
 
 using namespace Methan;
@@ -9,7 +11,7 @@ static OpDependencyDescriptor* __descriptor;
 class OpTestFactory : public AbstractOperatorFactory
 {
 public:
-    OpTestFactory(Context context) : AbstractOperatorFactory(context, METHAN_IDENTIFIER("OpTestFactory"), EOpFactoryFlag::SupportSynchronous)
+    OpTestFactory(Context context) : AbstractOperatorFactory(context, METHAN_IDENTIFIER("OpTestFactory"), EOpFactoryFlag::KernelCpu)
     { }
 
     const OpDependencyDescriptor* get_op_dependencies(const std::vector<size_t>& input_ranks, const std::vector<size_t>& output_ranks, const std::vector<Parameter>& parameters) override
@@ -28,6 +30,21 @@ protected:
         return nullptr;
     }
 };
+
+METHAN_REGISTER_OP_FACTORY(OpTestFactory);
+
+
+TEST_CASE("Assert that the registration process work correctly", "[op_factory]")
+{
+    Context context = ContextBuilder()
+        .add_logger_stdout(ELogLevel::Debug)
+        .build();
+    
+    AbstractOperatorFactory* factory = context->registry->find(METHAN_IDENTIFIER("OpTestFactory"));
+    REQUIRE(factory != nullptr);
+
+    Methan::free(context);
+}
 
 TEST_CASE("Test the descriptor validity check", "[op_factory]")
 {

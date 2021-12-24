@@ -30,7 +30,7 @@ Secondly we can use cmake to build and install to \<path_to_install\> Methan
 ```sh
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<path_to_install> -DMETHAN_BUILD_SHARED=ON
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<path_to_install>
 cmake --build . --target install
 ```
 

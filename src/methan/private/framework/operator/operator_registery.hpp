@@ -13,11 +13,24 @@
 #include <methan/utility/enum.hpp>
 #include <methan/private/framework/framework.hpp>
 
-#define __METHAN_REGISTER_OPERATOR_FACTORY(factory) \
-    Methan::OperatorRegistry::__register([](Context context) { return new factory(context); })
-        
+#define __METHAN_REGISTER_OPERATOR_FACTORY(factory)                                                 \
+    __METHAN_REGISTER_OPERATOR_FACTORY_2(factory, METHAN_UNIQUE_IDENTIFIER(op_factory_))
+
+#define __METHAN_REGISTER_OPERATOR_FACTORY_2(factory, identifier)                                   \
+    static int identifier =                                                                         \
+    []() {                                                                                          \
+        Methan::OperatorRegistry::__register([](Context context){ return new factory(context); });  \
+        return 0;                                                                                   \
+    }()
 
 namespace Methan {
+
+    template<typename T>
+    struct RegistrarHelper
+    {
+        static T value;
+        static_assert(&value);
+    };
 
     class OperatorRegistry : public Contextuable
     {

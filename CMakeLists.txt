@@ -15,7 +15,10 @@ message("-- Methan v${METHAN_VERSION}")
 
 # Listing of all the options available to configure the project
 option(METHAN_BUILD_TEST "Building the test(s)" OFF)
-option(METHAN_BUILD_SHARED "Building METHAN as a Shared library" OFF)
+# Notice that the METHAN_BUILD_SHARED option has been permanently turn ON due
+# to the fact that the factory cannot be registered automatically when creating
+# a library (compiler destroy static unused)
+# option(METHAN_BUILD_SHARED "Building METHAN as a Shared library" ON)
 option(METHAN_EXPOSE_PRIVATE "Install private header along side standard headers" OFF)
 option(METHAN_DEBUG "Sets METHAN in a debug environment (enhanced testing)" ON)
 option(METHAN_FORCE_ASSERTION "Force METHAN to expand assertion (even if METHAN_DEBUG ain't defined)" OFF)
@@ -26,6 +29,7 @@ if(${METHAN_DEBUG})
 endif()
 
 # Setting configuration variable(s)
+set(METHAN_BUILD_SHARED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
