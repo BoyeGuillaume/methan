@@ -8,28 +8,62 @@
 #include <methan/core/except.hpp>
 #include <methan/core/contextuable.hpp>
 #include <methan/private/framework/framework.hpp>
+#include <methan/private/framework/framework.hpp>
+#include <methan/private/framework/operator/operator_factory.hpp>
 #include <methan/utility/uuid.hpp>
 #include <methan/utility/string_identifier.hpp>
 #include <methan/utility/enum.hpp>
-#include <methan/private/framework/framework.hpp>
 
-#define __METHAN_REGISTER_OPERATOR_FACTORY(factory)                                                 \
-    __METHAN_REGISTER_OPERATOR_FACTORY_2(factory, METHAN_UNIQUE_IDENTIFIER(op_factory_))
+#define METHAN_REGISTER_OP_FACTORY(factory)                                                         \
+    __METHAN_REGISTER_OPERATOR_FACTORY_DETAILS(factory, METHAN_UNIQUE_IDENTIFIER(op_factory_))
 
-#define __METHAN_REGISTER_OPERATOR_FACTORY_2(factory, identifier)                                   \
+#define __METHAN_REGISTER_OPERATOR_FACTORY_DETAILS(factory, identifier)                             \
     static int identifier =                                                                         \
     []() {                                                                                          \
         Methan::OperatorRegistry::__register([](Context context){ return new factory(context); });  \
         return 0;                                                                                   \
     }()
 
+#define METHAN_OP_FACTORY(opFactoryName) \
+    METHAN_OP_FACTORY_DETAILS(opFactoryName, METHAN_CONCATENATE(METHAN_CONCATENATE(op_factory_generated_, opFactoryName), ___unique_identifier_without_counter))
+
+#define METHAN_OP_FACTORY_DETAILS(opFactoryName, identifier)                                        \
+    class opFactoryName : public Methan::AbstractOperatorFactory {                                  \
+    public:                                                                                         \
+        METHAN_API opFactoryName(Methan::Context context);                                          \
+                                                                                                    \
+        METHAN_API OpDependencyDescriptor* get_op_dependencies(const std::vector<size_t>& input_ranks, const std::vector<size_t>& output_ranks, const std::vector<Parameter>& parameters) override; \
+        METHAN_API std::optional<std::vector<TensorShape>> inferred_result_shape(const std::vector<TensorShape*>& inputs, const std::vector<Parameter>& parameters) const override; \
+    protected:                                                                                      \
+        METHAN_API AbstractOperator* __create_operator(const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreateDescriptor& descriptor) override; \
+    };                                                                                              \
+    static constexpr Methan::OpFactoryBuilderHelper identifier = Methan::OpFactoryBuilderHelper()   \
+
+#define METHAN_OP_FACTORY_DEFINE(opFactoryName) \
+    METHAN_OP_FACTORY_DEFINE_DETAILS(opFactoryName, METHAN_CONCATENATE(METHAN_CONCATENATE(op_factory_generated_, opFactoryName), ___unique_identifier_without_counter))
+
+#define METHAN_OP_FACTORY_DEFINE_DETAILS(opFactoryName, identifier)                                 \
+    METHAN_API opFactoryName::opFactoryName(Methan::Context context) : Methan::AbstractOperatorFactory(context, METHAN_IDENTIFIER(identifier.name), identifier.flags) {}
+
 namespace Methan {
 
-    template<typename T>
-    struct RegistrarHelper
+    struct OpFactoryBuilderHelper
     {
-        static T value;
-        static_assert(&value);
+        constexpr OpFactoryBuilderHelper() : flags(), name("") {}
+        constexpr OpFactoryBuilderHelper(EOpFactoryFlags flags, const char* name) : flags(flags), name(name) {}
+
+        constexpr OpFactoryBuilderHelper withFlags(EOpFactoryFlags flags_)
+        {
+            return OpFactoryBuilderHelper(flags_ | flags, name);
+        }
+
+        constexpr OpFactoryBuilderHelper withName(const char* name)
+        {
+            return OpFactoryBuilderHelper(flags, name);
+        }
+
+        EOpFactoryFlags flags;
+        const char* name;
     };
 
     class OperatorRegistry : public Contextuable

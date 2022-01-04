@@ -22,6 +22,16 @@ namespace Methan {
             return std::get<T>(m_value);
         }
 
+        inline bool operator==(const Parameter& other) const
+        {
+            return m_value == other.m_value;
+        }
+
+        inline bool operator!=(const Parameter& other) const
+        {
+            return !(*this == other);
+        }
+
         template<typename T>
         inline T operator()() const
         {

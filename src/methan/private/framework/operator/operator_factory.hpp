@@ -5,6 +5,7 @@
 #include <vector>
 #include <variant>
 #include <functional>
+#include <unordered_map>
 
 #include <methan/core/except.hpp>
 #include <methan/core/context.hpp>
@@ -17,12 +18,9 @@
 #include <methan/utility/string_identifier.hpp>
 #include <methan/private/framework/framework.hpp>
 #include <methan/private/framework/operator/parameter.hpp>
-#include <methan/private/framework/operator/operator_registery.hpp>
+#include <methan/utility/math.hpp>
 
 
-#define METHAN_REGISTER_OP_FACTORY(opFactoryName)                                        \
-    METHAN_EXPAND(__METHAN_REGISTER_OPERATOR_FACTORY(opFactoryName))
-    
 namespace Methan {
 
     enum class EOpFactoryFlag : uint32_t
@@ -111,7 +109,7 @@ namespace Methan {
         METHAN_DISABLE_COPY_MOVE(AbstractOperatorFactory);
 
     public:
-        METHAN_API AbstractOperatorFactory(Context context, const StringIdentifier& identifier, EOpFactoryFlags flags);
+        METHAN_API AbstractOperatorFactory(Context context, const StringIdentifier& identifier, EOpFactoryFlags flags, uint8_t number_parameters, uint32_t parameters_descriptor_usage_mask);
         METHAN_API virtual ~AbstractOperatorFactory();
 
         inline const StringIdentifier& identifier() const
@@ -137,14 +135,15 @@ namespace Methan {
         /**
          * @brief Get the dependencies for a given inputs ranks and output ranks.
          * @warning This object MUST not be deallocate by the use as it is manager by the inner working of the operator to
-         * prevent allocating many of them
+         * prevent allocating many of them.
+         * @warning This method is not thread safe
          * 
          * @param input_ranks a list containing the ranks of each inputs
          * @param output_ranks a list containing the ranks of each outputs
          * @param parameters a list of all the parameters used to construct the operator
          * @return const OpDependencyDescriptor* a pointer to an descriptor that MUST NOT be released.
          */
-        virtual const OpDependencyDescriptor* get_op_dependencies(const std::vector<size_t>& input_ranks, const std::vector<size_t>& output_ranks, const std::vector<Parameter>& parameters) = 0;
+        METHAN_API const OpDependencyDescriptor* get_op_dependencies(const std::vector<size_t>& input_ranks, const std::vector<size_t>& output_ranks, const std::vector<Parameter>& parameters);
 
         /**
          * @brief Given the input of a AbstractOperatorFactory return optionally the inferred output
@@ -157,6 +156,7 @@ namespace Methan {
         
         /**
          * @brief Whever or not we can create an operator with the given inputs and outputs tensor block
+         * @warning This method is not thread safe
          * 
          * @param inputs inputs tensor block
          * @param outputs outputs tensor block
@@ -167,6 +167,7 @@ namespace Methan {
 
         /**
          * @brief Create a operator object given a configuration
+         * @warning This method is not thread safe
          * 
          * @param inputs the inputs given to the operator
          * @param outputs the outputs given to the operator
@@ -178,10 +179,33 @@ namespace Methan {
 
     protected:
         virtual AbstractOperator* __create_operator(const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreateDescriptor& create_descriptor) = 0;
+        
+        /**
+         * @brief Create the dependencies given a configuration
+         * @note This method ain't thread safe and should not therefore be concieved to be thread safe
+         * 
+         * @param allocated_memory an already-allocated-non-constructed object where the new object should be located. To construct the object one can use the little known new syntax
+         * `new (allocated_memory) OpDependencyDescriptor(...);`
+         * @param input_ranks a list of the input ranks
+         * @param output_ranks a list of the output ranks
+         * @param parameters a list of parameters. Please note that ONLY parameters masked by `parameters_descriptor_usage_mask` should be used.
+         * @return true if an error occured an the input given to this function is invalid
+         * @return false everything happen has expected
+         */
+        virtual bool __create_new_op_dependencies(OpDependencyDescriptor* allocated_memory, const std::vector<size_t>& input_ranks, const std::vector<size_t>& output_ranks, const std::vector<Parameter>& parameters) = 0;
 
     private:
+        struct OpDependenciesTableEntry
+        {
+            OpDependencyDescriptor* ptr;
+            std::vector<Parameter> parameters;
+        };
+
+        const uint8_t m_number_parameters;
+        const uint32_t m_parameters_descriptor_usage_mask;
         OpDescriptor m_descriptor;
         std::string m_name;
+        std::unordered_map<std::pair<std::vector<size_t>, std::vector<size_t>>, std::vector<OpDependenciesTableEntry>> m_op_dependencies;
     };
 
 }
