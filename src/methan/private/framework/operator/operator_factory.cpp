@@ -17,9 +17,9 @@ METHAN_API Methan::AbstractOperatorFactory::AbstractOperatorFactory(Context cont
 METHAN_API Methan::AbstractOperatorFactory::~AbstractOperatorFactory()
 {
     // dealloc all the op_descriptor
-    for(auto& entry = m_op_dependencies.begin(); entry != m_op_dependencies.end(); entry++)
+    for(auto entry = m_op_dependencies.begin(); entry != m_op_dependencies.end(); entry++)
     {
-        for(auto& it = entry->second.begin(); it != entry->second.end(); ++it)
+        for(auto it = entry->second.begin(); it != entry->second.end(); ++it)
         {
             if(it->ptr) delete it->ptr;
         }
@@ -147,7 +147,7 @@ METHAN_API const Methan::OpDependencyDescriptor* Methan::AbstractOperatorFactory
     if(entry != m_op_dependencies.end())
     {
         // Try to iterate over all the possibilities until we have the correct list of parameters
-        for(auto& it = entry->second.begin(); it != entry->second.end(); it++)
+        for(auto it = entry->second.begin(); it != entry->second.end(); it++)
         {
             // check if all require parameters of this iterator match the current parameters
             bool is_valid = true;
