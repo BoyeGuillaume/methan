@@ -76,6 +76,19 @@ namespace std
         }
     };
 
+#ifdef METHAN_OS_MACOS
+    template<>
+    struct hash<std::vector<size_t>>
+    {
+        size_t operator()(const std::vector<size_t>& x) const
+        {
+            std::size_t ret = 0;
+            for(auto& i : xs) ret = (size_t) Methan::rotl(ret, 11) ^ (size_t) Methan::hash<uint64_t>((uint64_t) i);
+            return ret;
+        }
+    };
+#endif
+
     template<typename A, typename B>
     struct hash<std::pair<A, B>>
     {
