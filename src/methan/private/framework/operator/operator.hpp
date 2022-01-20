@@ -19,6 +19,8 @@ namespace Methan {
             return m_factory;
         }
 
+        virtual Uuid kernel_uuid() const = 0;
+
     protected:
         METHAN_API AbstractOperator(AbstractOperatorFactory* factory, Uuid uuid, const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs);
         METHAN_API virtual ~AbstractOperator();

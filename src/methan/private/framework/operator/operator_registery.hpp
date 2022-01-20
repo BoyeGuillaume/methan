@@ -31,11 +31,11 @@
     class opFactoryName : public Methan::AbstractOperatorFactory {                                  \
     public:                                                                                         \
         METHAN_API opFactoryName(Methan::Context context);                                          \
-                                                                                                    \
-        METHAN_API OpDependencyDescriptor* get_op_dependencies(const std::vector<size_t>& input_ranks, const std::vector<size_t>& output_ranks, const std::vector<Parameter>& parameters) override; \
         METHAN_API std::optional<std::vector<TensorShape>> inferred_result_shape(const std::vector<TensorShape*>& inputs, const std::vector<Parameter>& parameters) const override; \
+                                                                                                    \
     protected:                                                                                      \
-        METHAN_API AbstractOperator* __create_operator(const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreateDescriptor& descriptor) override; \
+        METHAN_API AbstractOperator* __create_operator(const std::vector<TensorBlock*>& inputs, const std::vector<TensorBlock*>& outputs, const std::vector<Parameter>& parameters, const OpCreateDescriptor& create_descriptor) override; \
+        METHAN_API bool __create_new_op_dependencies(OpDependencyDescriptor* allocated_memory, const std::vector<size_t>& input_ranks, const std::vector<size_t>& output_ranks, const std::vector<Parameter>& parameters) override; \
     };                                                                                              \
     static constexpr Methan::OpFactoryBuilderHelper identifier = Methan::OpFactoryBuilderHelper()   \
 
@@ -49,21 +49,62 @@ namespace Methan {
 
     struct OpFactoryBuilderHelper
     {
-        constexpr OpFactoryBuilderHelper() : flags(), name("") {}
-        constexpr OpFactoryBuilderHelper(EOpFactoryFlags flags, const char* name) : flags(flags), name(name) {}
+        constexpr OpFactoryBuilderHelper() noexcept
+        : flags(),
+          name(""),
+          parameters_count(0x0),
+          parameters_flag(0x0) {}
 
-        constexpr OpFactoryBuilderHelper withFlags(EOpFactoryFlags flags_)
+        constexpr OpFactoryBuilderHelper(EOpFactoryFlags flags, const char* name, uint8_t parameters_count, uint32_t parameters_flag) noexcept
+        : flags(flags),
+          name(name),
+          parameters_flag(parameters_flag),
+          parameters_count(parameters_count) {}
+
+        /**
+         * @brief Specify the flag used to configure the operator factory
+         * 
+         * @param flags_ an EOpFactoryFlags that is sets in the resulting factory
+         * @return OpFactoryBuilderHelper a new instance of OpFactoryBuilderHelper
+         * @note Notice that this method ain't optimize and is aimed to be constantly evaluate by the compiler
+         */
+        constexpr OpFactoryBuilderHelper with_flags(EOpFactoryFlags flags_) noexcept
         {
-            return OpFactoryBuilderHelper(flags_ | flags, name);
+            return OpFactoryBuilderHelper(flags_ | flags, name, parameters_count, parameters_flag);
         }
 
-        constexpr OpFactoryBuilderHelper withName(const char* name)
+        /**
+         * @brief Specify the name of the current operator factory
+         * 
+         * @param name the name of the current operator factory
+         * @return OpFactoryBuilderHelper a new instance of OpFactoryBuilderHelper
+         * @note Notice that this method ain't optimize and is aimed to be constantly evaluate by the compiler
+         */
+        constexpr OpFactoryBuilderHelper with_name(const char* name) noexcept
         {
-            return OpFactoryBuilderHelper(flags, name);
+            return OpFactoryBuilderHelper(flags, name, parameters_count, parameters_flag);
+        }
+
+        /**
+         * @brief Add a parameters to the list of parameters that MUST be passed in order to construct the operator factory. Notice
+         * that even if the parameters ain't actively used to determine the shape it must be passed !!
+         * 
+         * @param index the index of the parameters
+         * @param is_used_to_determine_shape whever or not this parameters is actively used to determine the shape of the result
+         * @return OpFactoryBuilderHelper a new instance of OpFactoryBuilderHelper
+         * @note Notice that this method ain't optimize and is aimed to be constantly evaluate by the compiler
+         */
+        constexpr OpFactoryBuilderHelper with_parameters(uint8_t index, bool is_used_to_determine_shape) noexcept
+        {
+            uint8_t count = index + 1;
+            if (count < parameters_count) count = parameters_count;
+            return OpFactoryBuilderHelper(flags, name, count, parameters_flag | ((uint8_t) (is_used_to_determine_shape) << index));
         }
 
         EOpFactoryFlags flags;
         const char* name;
+        uint8_t parameters_count;
+        uint32_t parameters_flag;
     };
 
     class OperatorRegistry : public Contextuable

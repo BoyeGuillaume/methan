@@ -11,7 +11,7 @@ static OpDependencyDescriptor* __descriptor;
 class OpTestFactory : public AbstractOperatorFactory
 {
 public:
-    OpTestFactory(Context context) : AbstractOperatorFactory(context, METHAN_IDENTIFIER("OpTestFactory"), EOpFactoryFlag::KernelCpu, 1, 0x1)
+    OpTestFactory(Context context) : AbstractOperatorFactory(context, METHAN_IDENTIFIER("OpTestFactory"), EOpFactoryFlag::KernelSupportCpu, 1, 0x1)
     { }
 
     bool __create_new_op_dependencies(OpDependencyDescriptor* allocated_memory, const std::vector<size_t>& input_ranks, const std::vector<size_t>& output_ranks, const std::vector<Parameter>& parameters)

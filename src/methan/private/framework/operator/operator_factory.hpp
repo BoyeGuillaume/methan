@@ -33,7 +33,7 @@ namespace Methan {
         /**
          * @brief Whever or not the selected factory support the kernel cpu
          */
-        KernelCpu = 0x1,
+        KernelSupportCpu = 0x1,
     };
 
     typedef EnumFlag<EOpFactoryFlag> EOpFactoryFlags;

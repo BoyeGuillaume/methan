@@ -5,8 +5,10 @@
 namespace Methan::ops
 {
     // METHAN_OP_FACTORY(OpAddition)
-    //     .withName("OpAddition")
-    //     .withFlags(EOpFactoryFlag::KernelCpu);
+    //     .with_name("OpAddition")
+    //     .with_flags(EOpFactoryFlag::KernelSupportCpu)
+    //     .with_parameters(0, false)
+    //     .with_parameters(1, true);
 }
 
 
