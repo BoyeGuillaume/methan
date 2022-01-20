@@ -6,6 +6,8 @@
 #define METHAN_VERSION                  "@METHAN_VERSION@"
 
 #cmakedefine METHAN_DEBUG
-#cmakedefine METHAN_BUILD_SHARED
+#cmakedefine METHAN_BUILD_SHARED // notice that this ain't an option anymore
 #cmakedefine METHAN_EXPOSE_PRIVATE
 #cmakedefine METHAN_FORCE_ASSERTION
+#cmakedefine METHAN_PREFER_LITTLE_ENDIAN
+#cmakedefine METHAN_USE_INTRINSIC

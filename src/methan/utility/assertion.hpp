@@ -10,6 +10,7 @@
 #define METHAN_FORCE_ASSERT_INDEX(index, upperBound)                           METHAN_FORCE_ASSERT(index < upperBound, Methan::ExceptionType::IndexOutOfBounds, "The given index is out of bounds (" + std::to_string(index) + " should be less than " + std::to_string(upperBound) + ").")
 
 #if defined(METHAN_DEBUG) || defined(METHAN_FORCE_ASSERTION)
+#define METHAN_EXPAND_ASSERTION
 #define METHAN_ASSERT(condition, type, msg)                                    METHAN_FORCE_ASSERT(condition, type, msg)
 #define METHAN_ASSERT_ARGUMENT(condition)                                      METHAN_FORCE_ASSERT_ARGUMENT(condition)
 #define METHAN_ASSERT_NON_NULL(pointer)                                        METHAN_FORCE_ASSERT_NON_NULL(pointer)

@@ -7,6 +7,7 @@ project(Methan LANGUAGES CXX VERSION 0.1.0)
 # Include utility
 include(cmake/ExtractVersion.cmake)
 include(cmake/GetDynamicLibName.cmake)
+include(cmake/GetStaticLibName.cmake)
 
 # Extracting the version form the project version
 extract_version(${CMAKE_PROJECT_VERSION} "METHAN")
@@ -14,12 +15,21 @@ message("-- Methan v${METHAN_VERSION}")
 
 # Listing of all the options available to configure the project
 option(METHAN_BUILD_TEST "Building the test(s)" OFF)
-option(METHAN_BUILD_SHARED "Building METHAN as a Shared library" OFF)
+# Notice that the METHAN_BUILD_SHARED option has been permanently turn ON due
+# to the fact that the factory cannot be registered automatically when creating
+# a library (compiler destroy static unused)
+# option(METHAN_BUILD_SHARED "Building METHAN as a Shared library" ON)
 option(METHAN_EXPOSE_PRIVATE "Install private header along side standard headers" OFF)
 option(METHAN_DEBUG "Sets METHAN in a debug environment (enhanced testing)" ON)
 option(METHAN_FORCE_ASSERTION "Force METHAN to expand assertion (even if METHAN_DEBUG ain't defined)" OFF)
+option(METHAN_PREFER_LITTLE_ENDIAN "Setup the preferred endianness for network communication" ON)
+option(METHAN_USE_INTRINSIC "Enable the use of intrisic function in methan" ON)
+if(${METHAN_DEBUG})
+    message("   > Methan is build is debug mode. This is advise for devellopment purpose but should be turn off for deployment.")
+endif()
 
 # Setting configuration variable(s)
+set(METHAN_BUILD_SHARED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -56,8 +66,13 @@ endif()
 add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/spdlog")
 set_target_properties(spdlog PROPERTIES DEBUG_POSTFIX "") # A little hacky solution has everyone loves
 
+set(SOCKPP_BUILD_STATIC ON CACHE BOOL "" FORCE)
+set(SOCKPP_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/sockpp")
+
 # Adding source subdirectory
 add_subdirectory(src)
+
 if(${METHAN_BUILD_TEST})
     message(STATUS "Importing Catch.......................................")
     add_subdirectory("${METHAN_THIRD_PARTY_FOLDER}/Catch2")

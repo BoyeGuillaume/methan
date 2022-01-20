@@ -88,17 +88,12 @@ namespace Methan {
         }
 
         
-        inline bool isEmpty() const noexcept
+        inline bool is_empty() const noexcept
         {
             return m_typeId == 0x0;
         }
 
-        inline bool isNonEmpty() const noexcept
-        {
-            return !isEmpty();
-        }
-
-        inline size_t typeId() const noexcept
+        inline size_t type_id() const noexcept
         {
             return m_typeId;
         }
@@ -106,7 +101,7 @@ namespace Methan {
         template<typename T>
         inline bool is() const noexcept
         {
-            if (isEmpty()) return false;
+            if (is_empty()) return false;
             if (m_typeId == typeid(T).hash_code()) return true;
 
             if(std::is_pointer<T>::value && !(m_flag & IsConstant))
@@ -120,7 +115,7 @@ namespace Methan {
         template<typename T, std::enable_if_t<std::is_pointer<T>::value && std::is_const<std::remove_pointer_t<T>>::value, bool> = true>
         inline T get() const
         {
-            METHAN_ASSERT(isNonEmpty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
+            METHAN_ASSERT(!is_empty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
             METHAN_ASSERT(is<T>(), Methan::ExceptionType::BadCastException, "Cannot cast from type " METHAN_DEBUG_OR_RELEASE("`" + std::string(m_dataName) + "`", + std::to_string(m_typeId) + ) " to type " METHAN_DEBUG_OR_RELEASE("`" + std::string(typeid(T).name()) + "`", + std::to_string(typeid(T).hash_code())));
             return reinterpret_cast<T>(m_data);
         }
@@ -128,7 +123,7 @@ namespace Methan {
         template<typename T, std::enable_if_t<std::is_pointer<T>::value && !std::is_const<std::remove_pointer_t<T>>::value, bool> = true>
         inline T get() const
         {
-            METHAN_ASSERT(isNonEmpty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
+            METHAN_ASSERT(!is_empty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
             METHAN_ASSERT(is<T>(), Methan::ExceptionType::BadCastException, "Cannot cast from type " METHAN_DEBUG_OR_RELEASE("`" + std::string(m_dataName) + "`", + std::to_string(m_typeId) + ) " to type " METHAN_DEBUG_OR_RELEASE("`" + std::string(typeid(T).name()) + "`", + std::to_string(typeid(T).hash_code())));
             METHAN_ASSERT(!(m_flag & IsConstant), Methan::ExceptionType::BadCastException, "Cannot cast a pointer-to-constant to a pointer-to-non-const");
             return reinterpret_cast<T>(m_data);
@@ -137,7 +132,7 @@ namespace Methan {
         template<typename T, std::enable_if_t<(!std::is_pointer<T>::value) && std::is_copy_constructible<T>::value, bool> = true>
         inline const T& get() const
         {
-            METHAN_ASSERT(isNonEmpty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
+            METHAN_ASSERT(!is_empty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
             METHAN_ASSERT(is<T>(), Methan::ExceptionType::BadCastException, "Cannot cast from type " METHAN_DEBUG_OR_RELEASE("`" + std::string(m_dataName) + "`", + std::to_string(m_typeId) + ) " to type " METHAN_DEBUG_OR_RELEASE("`" + std::string(typeid(T).name()) + "`", + std::to_string(typeid(T).hash_code())));
             return *reinterpret_cast<T*>(m_data);
         }
@@ -145,7 +140,7 @@ namespace Methan {
         template<typename T, std::enable_if_t<(!std::is_pointer<T>::value) && std::is_copy_constructible<T>::value, bool> = true>
         inline T& get()
         {
-            METHAN_ASSERT(isNonEmpty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
+            METHAN_ASSERT(!is_empty(), Methan::ExceptionType::IllegalArgument, "The call to `get` failed as the Varient is currently empty");
             METHAN_ASSERT(is<T>(), Methan::ExceptionType::BadCastException, "Cannot cast from type " METHAN_DEBUG_OR_RELEASE("`" + std::string(m_dataName) + "`", + std::to_string(m_typeId) + ) " to type " METHAN_DEBUG_OR_RELEASE("`" + std::string(typeid(T).name()) + "`", + std::to_string(typeid(T).hash_code())));
             return *reinterpret_cast<T*>(m_data);
         }

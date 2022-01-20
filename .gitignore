@@ -30,6 +30,10 @@
 *.exe
 *.out
 *.app
+*.ignored
+
+**.build/
+**.install/
 
 # Building files & Workspace
 **/[bB]uild
@@ -38,4 +42,5 @@
 **/.vs/
 **/__pycache__/
 **/.idea/
+**/.metals
 src/methan/core/configuration.hpp

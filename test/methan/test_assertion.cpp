@@ -6,7 +6,8 @@
 #endif
 #include <methan/utility/assertion.hpp>
 
-TEST_CASE("Exception thrown correctly", "[macro]") {
+TEST_CASE("Exception thrown correctly", "[macro]")
+{
     REQUIRE_THROWS_AS([]() {
         METHAN_THROW_EXCEPTION("A random exception always find the way to your heart", Methan::ExceptionType::Unknown);
     }(), Methan::Exception);
@@ -21,7 +22,8 @@ TEST_CASE("Exception thrown correctly", "[macro]") {
     }
 }
 
-TEST_CASE("Testing the assertion", "[macro]") {
+TEST_CASE("Testing the assertion", "[macro]")
+{
     CHECK_THROWS_AS([]() { METHAN_FORCE_ASSERT(false, Methan::ExceptionType::IllegalArgument, "An exception occured"); }(), Methan::Exception);
     CHECK_THROWS_AS([]() { METHAN_FORCE_ASSERT_ARGUMENT(true == false); }(), Methan::Exception);
     CHECK_THROWS_AS([]() { METHAN_FORCE_ASSERT_INDEX(115, 115); }(), Methan::Exception);

@@ -9,6 +9,17 @@ include(CTest)
 message(STATUS "Discovering tests.....................................[ DONE ]")
 file(GLOB_RECURSE METHAN_TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/methan/**.cpp")
 
+# Add custom target for the copy for all files
+foreach(_SHARED_LIBS ${METHAN_INTERNAL_SHARED_LIST})
+    add_custom_target(METHAN_INTERNAL_TARGET_TEST_COPY_${_SHARED_LIBS} ALL
+        ${CMAKE_COMMAND} -E copy
+            "\"${METHAN_INTERNAL_BINARY_DIRECTORY}/${_SHARED_LIBS}\""
+            "\"${CMAKE_CURRENT_BINARY_DIR}/${_SHARED_LIBS}\"") # This little hack ensure this command is always run
+    add_dependencies(METHAN_INTERNAL_TARGET_TEST_COPY_${_SHARED_LIBS} Methan)
+    add_dependencies(METHAN_INTERNAL_TARGET_TEST_COPY_${_SHARED_LIBS} spdlog)
+endforeach()
+
+
 # Add the build target for each test
 message(STATUS "Building test")
 foreach(TEST_FILE ${METHAN_TEST_FILES})
@@ -16,17 +27,13 @@ foreach(TEST_FILE ${METHAN_TEST_FILES})
 
     add_executable(${EXECUTABLE_NAME} ${TEST_FILE})
 
-    target_link_libraries(${EXECUTABLE_NAME} PRIVATE Catch2::Catch2WithMain Methan)
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE Catch2::Catch2WithMain Methan spdlog::spdlog)
     target_include_directories(${EXECUTABLE_NAME} PUBLIC ${METHAN_INTERNAL_INCLUDE_DIRECTORY})
 
     foreach(_SHARED_LIBS ${METHAN_INTERNAL_SHARED_LIST})
-        add_custom_command(TARGET ${EXECUTABLE_NAME}
-            PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-                    "\"${METHAN_INTERNAL_BINARY_DIRECTORY}/${_SHARED_LIBS}\""
-                    "\"${CMAKE_CURRENT_BINARY_DIR}/${_SHARED_LIBS}\"")
+        add_dependencies(${EXECUTABLE_NAME} METHAN_INTERNAL_TARGET_TEST_COPY_${_SHARED_LIBS})
     endforeach()
-
+    
     set_target_properties(${EXECUTABLE_NAME} PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
@@ -37,6 +44,7 @@ foreach(TEST_FILE ${METHAN_TEST_FILES})
         ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}"
         LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}"
         RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}")
+
 
     add_test(NAME ${EXECUTABLE_NAME}
              COMMAND ${EXECUTABLE_NAME}

@@ -13,6 +13,7 @@ Methan is a C++ library aimed at creating computational graph and optimising suc
   - [Table Of Content](#table-of-content)
   - [Installation](#installation)
   - [Authors](#authors)
+  - [Internal Documentation](#internal-documentation)
 
 ## Installation
 
@@ -29,10 +30,13 @@ Secondly we can use cmake to build and install to \<path_to_install\> Methan
 ```sh
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<path_to_install> -DMETHAN_BUILD_SHARED=ON
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<path_to_install>
 cmake --build . --target install
 ```
 
 ## Authors
 The library has been made possible thanks to
 * BoyeGuillaume
+
+## Internal Documentation
+If you are interrested in the internal layout of the library you can check the [internal documentation](doc/internal.md)
